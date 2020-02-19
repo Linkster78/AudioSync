@@ -2,6 +2,7 @@ const PORT = 80;
 const CHUNK_SIZE = 1024 * 128;
 
 const fs = require('fs');
+const zlib = require('zlib');
 const wav = require('node-wav');
 
 let buffer = fs.readFileSync('music/freak.wav');
@@ -29,11 +30,14 @@ app.ws('/audio', (ws, req) => {
                     buffer.writeFloatBE(result.channelData[0][i + offset / 8], i * 8);
                     buffer.writeFloatBE(result.channelData[1][i + offset / 8], i * 8 + 4);
                 }
-                var bufferB64 = buffer.toString('base64');
-                ws.send(JSON.stringify({
-                    packet: 1,
-                    audio: bufferB64
-                }));
+                zlib.deflate(buffer, (err, buff) => {
+                    if(!err) {
+                        ws.send(JSON.stringify({
+                            packet: 1,
+                            audio: buff.toString('base64')
+                        }));
+                    }
+                });
                 break;
             default:
                 break;

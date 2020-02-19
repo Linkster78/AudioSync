@@ -1,37 +1,30 @@
 var webSocket, sampleRate, audioContext;
 var audioOffset = 0;
-var audioBuffers = new Array(2);
-
-/* TODO FIX CODE, it's weird... honestly, not sure what you did here. look into auto-playing audio right after the previous buffer, find where the slight delay is from.
-maybe prepare the audio source beforehand, connect it etc, so you just have to .start() when needed?*/
-function playNextClip(event) {
-    var audioSource = audioContext.createBufferSource();
-    audioBuffers[0] = audioBuffers[1];
-    audioSource.buffer = audioBuffers[0];
-    audioSource.connect(audioContext.destination);
-    audioSource.start();
-    audioSource.onended = playNextClip;
-    webSocket.send(JSON.stringify({
-        packet: 0,
-        offset: audioOffset
-    }));
-}
+var nextStartTime;
 
 function useBuffer(audioBuffer) {
-    if(audioBuffers[0] === undefined) {
-        var audioSource = audioContext.createBufferSource();
-        audioBuffers[0] = audioBuffer;
-        audioSource.buffer = audioBuffers[0];
-        audioSource.connect(audioContext.destination);
-        audioSource.start();
-        audioSource.onended = playNextClip;
+    var audioSource = audioContext.createBufferSource();
+    audioSource.buffer = audioBuffer;
+    audioSource.connect(audioContext.destination);
+    var audioDelay;
+    if(nextStartTime === undefined) {
         webSocket.send(JSON.stringify({
             packet: 0,
             offset: audioOffset
         }));
+        audioDelay = 0;
+        nextStartTime = audioContext.currentTime;
     } else {
-        audioBuffers[1] = audioBuffer;
+        audioDelay = nextStartTime - audioContext.currentTime;
     }
+    audioSource.start(audioContext.currentTime + audioDelay);
+    audioSource.onended = (event) => {
+        webSocket.send(JSON.stringify({
+            packet: 0,
+            offset: audioOffset
+        }));
+    };
+    nextStartTime += audioBuffer.duration;
 }
 
 $(document).ready(() => {
@@ -51,14 +44,13 @@ $(document).ready(() => {
                 }));
                 break;
             case 1:
-                var bufferB64 = json['audio'];
-                var bufferString = window.atob(bufferB64);
-                var bufferLength = bufferString.length;
-                var buffer = new ArrayBuffer(bufferLength);
-                var view = new DataView(buffer);
-                for(var i = 0; i < bufferLength; i++) {
-                    view.setUint8(i, bufferString.charCodeAt(i));
-                }
+                var gzipB64 = json['audio'];
+                var gzipString = window.atob(gzipB64);
+                var gzipCharData = gzipString.split('').map((x) => x.charCodeAt(0));
+                var gzipBinData = new Uint8Array(gzipCharData);
+                var binData = pako.inflate(gzipBinData);
+                var bufferLength = binData.length;
+                var view = new DataView(binData.buffer);
                 var audioBuffer = audioContext.createBuffer(2, bufferLength / 8, sampleRate);
                 for(var channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
                     var channelBuffer = audioBuffer.getChannelData(channel);
