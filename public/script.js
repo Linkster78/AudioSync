@@ -25,8 +25,8 @@ $(document).ready(() => {
                 for(var i = 0; i < songListing.length; i++) {
                     $("#songListing").append(`<a href="#" data-song="${i}"><strong>[+]</strong> ${songListing[i].title}</a><br>`);
                 }
-                $("#songListing a").mouseenter((event) => {
-                    var songId = $(event.target).attr("data-song");
+                $("#songListing > a").mouseenter((event) => {
+                    var songId = $(event.target).closest("a").attr("data-song");
                     var song = songListing[songId];
                     var songMinutes = Math.floor(song.duration / 60);
                     var songSeconds = Math.floor(song.duration % 60).toString();

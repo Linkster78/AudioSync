@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>AudioSync</title>
+        <title>Music Listen-Along</title>
         
         <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.10/pako_inflate.min.js"></script>
@@ -10,9 +10,11 @@
     </head>
 
     <body>
-        <div id="songListing">
-            <h1>Audio Sync</h1>
+        <div class="browser">
+            <h1>Music Listen-Along</h1>
+            <div id="songListing"></div>
         </div>
+
         <div class="sidebar">
             <div class="song-information">
                 <h2>Song Information</h2>
@@ -25,6 +27,7 @@
                     <h3 id="songYear">Release Year:</h3>
                 </div>
             </div>
+            
             <div class="now-playing">
                 <h2>Now Playing</h2>
             </div>

@@ -1,6 +1,6 @@
 const PORT = 80;
 const CHUNK_SIZE = 1024 * 128;
-const musicFolder = "./music/";
+const musicFolder = "D:/Google Drive/Music/HQ/";
 
 const zlib = require('zlib');
 const express = require('express');
