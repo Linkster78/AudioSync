@@ -15,19 +15,14 @@ var configureWebSocket = function(ws, app, audio) {
 
                 //Song Chunk Request
                 case 1:
+                    var songId = json['songId'];
                     var offset = json['offset'];
-                    var buffer = Buffer.alloc(CHUNK_SIZE);
-                    for(var i = 0; i < CHUNK_SIZE / 8; i++) {
-                        buffer.writeFloatBE(result.channelData[0][i + offset / 8], i * 8);
-                        buffer.writeFloatBE(result.channelData[1][i + offset / 8], i * 8 + 4);
-                    }
-                    zlib.deflate(buffer, (err, buff) => {
-                        if(!err) {
-                            ws.send(JSON.stringify({
-                                packet: 1,
-                                audio: buff.toString('base64')
-                            }));
-                        }
+                    audio.getSongChunk(songId, offset, (audio, end) => {
+                        ws.send(JSON.stringify({
+                            packet: 1,
+                            audio: audio,
+                            end: end
+                        }));
                     });
                     break;
 

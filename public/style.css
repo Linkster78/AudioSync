@@ -41,7 +41,7 @@ a:hover > strong { color: greenyellow; }
 }
 
 #songListing {
-    height: 90vh;
+    height: 87vh;
     overflow-x: hidden;
     overflow-y: scroll;
     scrollbar-color: transparent transparent;
