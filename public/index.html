@@ -10,27 +10,29 @@
     </head>
 
     <body>
+        <audio id="songPlayer">
+            <source type="audio/mpeg" src="West%20Coast.mp3">
+        </audio>
+
+        <div class="song-information" id="songPopup">
+            <img id="songThumbnail" src="">
+            <div class="song-metadata">
+                <h3 id="songTitle">Title:</h3><br>
+                <h3 id="songArtist">Artist:</h3><br>
+                <h3 id="songLength">Length:</h3><br>
+                <h3 id="songAlbum">Album:</h3><br>
+                <h3 id="songYear">Release Year:</h3>
+            </div>
+        </div>
+
         <div class="browser">
             <h1>Music Listen-Along</h1>
             <div id="songListing"></div>
         </div>
 
-        <div class="sidebar">
-            <div class="song-information">
-                <h2>Song Information</h2>
-                <img id="songThumbnail" src="">
-                <div class="song-metadata">
-                    <h3 id="songTitle">Title:</h3><br>
-                    <h3 id="songArtist">Artist:</h3><br>
-                    <h3 id="songLength">Length:</h3><br>
-                    <h3 id="songAlbum">Album:</h3><br>
-                    <h3 id="songYear">Release Year:</h3>
-                </div>
-            </div>
-            
-            <div class="now-playing">
-                <h2>Now Playing</h2>
-            </div>
+        <div class="queue">
+            <h1>Song Queue</h1>
+            <div id="songQueue"></div>
         </div>
     </body>
 </html>

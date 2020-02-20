@@ -1,4 +1,4 @@
-var webSocket;
+var playerWorker, webSocket;
 var songListing, thumbnails;
 
 function updateSongInformation(songId) {
@@ -13,12 +13,30 @@ function updateSongInformation(songId) {
     $("#songAlbum").text(`Album: ${song.album}`);
     $("#songYear").text(`Release Year: ${song.year}`);
     $("#songThumbnail").attr("src", thumbnails[song.thumbnail]);
+    $(".song-information").css("display", "");
 }
 
 $(document).ready(() => {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
+    playerWorker = new Worker("player.js");
     webSocket = new WebSocket(`ws://${window.location.host}/ws`);
+
+    $(".song-information").css("display", "none");
+    $("#songPlayer").get(0).onended = (e) => {
+        playerWorker.postMessage(['ended']);
+    };
+
+    playerWorker.onmessage = (e) => {
+        var command = e.data[0];
+        switch(command) {
+            case 'play':
+                var source = e.data[1];
+                var player = $("#songPlayer");
+                player.find("source").attr("src", source);
+                player.get(0).load();
+                player.get(0).play();
+                break;
+        }
+    };
 
     webSocket.onopen = (event) => {
         webSocket.send(JSON.stringify({
@@ -38,10 +56,16 @@ $(document).ready(() => {
                 for(var i = 0; i < songListing.length; i++) {
                     $("#songListing").append(`<a href="#" data-song="${i}"><strong>[+]</strong> ${songListing[i].title}</a><br>`);
                 }
-                updateSongInformation(0);
                 $("#songListing > a").mouseenter((event) => {
                     var songId = $(event.target).closest("a").attr("data-song");
                     updateSongInformation(songId);
+                });
+                $("#songListing > a").mouseleave((event) => {
+                    $(".song-information").css("display", "none");
+                });
+                $("#songListing > a").click((event) => {
+                    var songId = $(event.target).closest("a").attr("data-song");
+                    playerWorker.postMessage(['queue', encodeURIComponent(songListing[songId].file)]);
                 });
                 break;
 

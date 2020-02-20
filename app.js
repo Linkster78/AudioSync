@@ -1,5 +1,5 @@
 const PORT = 80;
-const musicFolder = "D:/Google Drive/Music/HQ/";
+const musicFolder = "./music/";
 
 const express = require('express');
 const app = express();
