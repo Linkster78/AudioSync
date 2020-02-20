@@ -13,19 +13,6 @@ var configureWebSocket = function(ws, app, audio) {
                     }));
                     break;
 
-                //Song Chunk Request
-                case 1:
-                    var songId = json['songId'];
-                    var offset = json['offset'];
-                    audio.getSongChunk(songId, offset, (audio, end) => {
-                        ws.send(JSON.stringify({
-                            packet: 1,
-                            audio: audio,
-                            end: end
-                        }));
-                    });
-                    break;
-
                 default:
                     break;
             }

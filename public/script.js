@@ -24,13 +24,6 @@ $(document).ready(() => {
         webSocket.send(JSON.stringify({
             packet: 0
         }));
-
-        /* DEBUG LINE */
-        webSocket.send(JSON.stringify({
-            packet: 1,
-            songId: 0,
-            offset: 0
-        }));
     };
 
     webSocket.onmessage = (event) => {
@@ -50,11 +43,6 @@ $(document).ready(() => {
                     var songId = $(event.target).closest("a").attr("data-song");
                     updateSongInformation(songId);
                 });
-                break;
-
-            //Song Chunk Response
-            case 1:
-                /* DO SOMETHING WITH AUDIO also implement the request part lmao you havent done that */
                 break;
 
             default:
