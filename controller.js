@@ -6,13 +6,10 @@ var configureWebSocket = function(ws, app, audio) {
 
                 //Song Listing Request
                 case 0:
-                    var songListing = [...audio.songStore];
-                    for(var i = 0; i < songListing.length; i++) {
-                        songListing[i].thumbnail = undefined;
-                    }
                     ws.send(JSON.stringify({
                         packet: 0,
-                        listing: songListing
+                        listing: audio.songStore,
+                        thumbnails: audio.thumbnailStore
                     }));
                     break;
 

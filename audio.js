@@ -1,8 +1,9 @@
 const fs = require('fs');
 const mm = require('music-metadata');
-const util = require('util');
+const crypto = require('crypto');
 
 var songStore = [];
+var thumbnailStore = {};
 
 var loadSongs = function(musicFolder) {
     fs.readdir(musicFolder, (err, files) => {
@@ -10,6 +11,12 @@ var loadSongs = function(musicFolder) {
             if(file.endsWith('.mp3')) {
                 mm.parseFile(musicFolder + file)
                 .then(metadata => {
+                    var thumbnailBuffer = metadata.native['ID3v2.3'].find((pair) => pair['id'] == 'APIC').value.data;
+                    var base64Thumbnail = `data:image/jpeg;base64, ${thumbnailBuffer.toString('base64')}`;
+                    var thumbnailMd5 = crypto.createHash('md5').update(base64Thumbnail).digest("hex");
+                    if(!(thumbnailMd5 in thumbnailStore)) {
+                        thumbnailStore[thumbnailMd5] = base64Thumbnail;
+                    }
                     songStore.push({
                         sampleRate: metadata.format.sampleRate,
                         bitrate: metadata.format.bitrate,
@@ -19,11 +26,11 @@ var loadSongs = function(musicFolder) {
                         artist: metadata.common.artist,
                         title: metadata.common.title,
                         year: metadata.common.year,
-                        thumbnail: metadata.native['ID3v2.3'].find((pair) => pair['id'] == 'APIC').value.data
+                        thumbnail: thumbnailMd5
                     });
                 })
                 .catch(err => {
-                    console.error(`Error while loading "${file}"`);
+                    console.error(`Error while loading "${file}": ${err.stack}`);
                 });
             }
         });
@@ -32,5 +39,6 @@ var loadSongs = function(musicFolder) {
 
 module.exports = {
     loadSongs: loadSongs,
-    songStore: songStore
+    songStore: songStore,
+    thumbnailStore: thumbnailStore
 };

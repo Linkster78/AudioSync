@@ -9,8 +9,10 @@
   "author": "Julien Champoux",
   "license": "ISC",
   "dependencies": {
+    "crypto": "^1.0.1",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
+    "music-metadata": "^6.3.4",
     "node-wav": "0.0.2",
     "zlib": "^1.0.5"
   }

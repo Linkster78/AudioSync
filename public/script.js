@@ -1,5 +1,7 @@
 var webSocket;
 
+var songListing, thumbnails;
+
 $(document).ready(() => {
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -18,10 +20,25 @@ $(document).ready(() => {
 
             //Song Listing Response
             case 0:
-                var listing = json['listing'];
-                for(var i = 0; i < listing.length; i++) {
-                    $("#songListing").append(`<a href="#"><strong>[+]</strong> ${listing[i].artist} - ${listing[i].title}</a><br>`);
+                songListing = json['listing'];
+                thumbnails = json['thumbnails'];
+                for(var i = 0; i < songListing.length; i++) {
+                    $("#songListing").append(`<a href="#" data-song="${i}"><strong>[+]</strong> ${songListing[i].title}</a><br>`);
                 }
+                $("#songListing a").mouseenter((event) => {
+                    var songId = $(event.target).attr("data-song");
+                    var song = songListing[songId];
+                    var songMinutes = Math.floor(song.duration / 60);
+                    var songSeconds = Math.floor(song.duration % 60).toString();
+                    if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
+                    var songLength = songMinutes + ":" + songSeconds;
+                    $("#songTitle").text(`Title: ${song.title}`);
+                    $("#songArtist").text(`Artist: ${song.artist}`);
+                    $("#songLength").text(`Length: ${songLength}`);
+                    $("#songAlbum").text(`Album: ${song.album}`);
+                    $("#songYear").text(`Release Year: ${song.year}`);
+                    $("#songThumbnail").attr("src", thumbnails[song.thumbnail]);
+                });
                 break;
 
             default:
