@@ -1,9 +1,6 @@
-const CHUNK_SIZE = 1024 * 128;
-
 const fs = require('fs');
 const mm = require('music-metadata');
 const crypto = require('crypto');
-const zlib = require('zlib');
 
 var songStore = [];
 var thumbnailStore = {};
