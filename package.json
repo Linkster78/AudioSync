@@ -1,7 +1,7 @@
 {
   "name": "audiosync",
   "version": "1.0.0",
-  "description": "Streams audio to a web browser",
+  "description": "Plays audio on a web browser.",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

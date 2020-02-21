@@ -24,7 +24,7 @@ var loadSongs = function(musicFolder) {
                     channelCount: metadata.format.numberOfChannels,
                     duration: metadata.format.duration,
                     album: metadata.common.album,
-                    artist: metadata.common.artist,
+                    artist: metadata.common.albumartist,
                     title: metadata.common.title,
                     year: metadata.common.year,
                     thumbnail: thumbnailMd5
