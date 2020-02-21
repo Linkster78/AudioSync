@@ -34,6 +34,7 @@ var loadSongs = function(musicFolder) {
                 console.error(`Error while loading "${file}": ${err.stack}`);
             });
         })).then(() => {
+            songStore.sort((a, b) => a.title > b.title ? 1 : -1);
             console.log(`Loaded ${songStore.length} Songs.`);
         });
     });
