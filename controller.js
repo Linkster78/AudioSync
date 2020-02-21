@@ -1,4 +1,7 @@
-var configureWebSocket = function(ws, app, audio) {
+const audio = require('./audio');
+const party = require('./party');
+
+var configureWebSocket = function(ws, app) {
     app.ws('/ws', (ws, req) => {
         ws.on('message', (msg) => {
             var json = JSON.parse(msg);

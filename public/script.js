@@ -1,4 +1,4 @@
-var playerWorker, webSocket;
+var playerWorker, clientWorker;
 var songListing, thumbnails;
 
 Number.prototype.clamp = function(min, max) {
@@ -57,14 +57,16 @@ function updateNowPlaying(songId) {
 
 $(document).ready(() => {
     playerWorker = new Worker("player.js");
-    webSocket = new WebSocket(`ws://${window.location.host}/ws`);
+    clientWorker = new Worker("client.js");
 
     updateNowPlaying(undefined);
     $("#songPopup").css("display", "none");
     $("#selectFilter").val("none");
+
     $("#songPlayer").get(0).onended = (e) => {
         playerWorker.postMessage(['skip']);
     };
+
     $("#npProgressBarBackdrop").click((event) => {
         var player = $("#songPlayer");
         if(!player.get(0).paused) {
@@ -83,9 +85,11 @@ $(document).ready(() => {
             $("#npProgressBar").css("width", `${songProgress / player.get(0).duration*100}%`);
         }
     });
+
     $("#skipButton").click((event) => {
         playerWorker.postMessage(['skip']);
     });
+
     $("#toggleButton").click((event) => {
         var player = $("#songPlayer");
         var domPlayer = player.get(0);
@@ -102,6 +106,7 @@ $(document).ready(() => {
             toggleButton.removeClass("pause-button");
         }
     });
+
     $("#selectFilter").change((event) => {
         var filter = $(event.target).val();
         $("#songListing").empty();
@@ -160,7 +165,7 @@ $(document).ready(() => {
                 player.play();
                 updateNowPlaying(songId);
                 break;
-
+    
             case 'done':
                 updateNowPlaying(undefined);
                 var player = $("#songPlayer").get(0);
@@ -168,7 +173,7 @@ $(document).ready(() => {
                 source.removeAttribute('src');
                 player.load();
                 break;
-
+    
             case 'updateTime':
                 var player = $("#songPlayer");
                 var songProgress = player.get(0).currentTime;
@@ -179,7 +184,7 @@ $(document).ready(() => {
                 $("#npCurrentTime").text(songLength);
                 $("#npProgressBar").css("width", `${songProgress / player.get(0).duration*100}%`);
                 break;
-
+    
             case 'pushQueue':
                 var songId = e.data[1];
                 var song = songListing[songId];
@@ -193,7 +198,7 @@ $(document).ready(() => {
                     playerWorker.postMessage(['unqueue', $(event.target).closest("tr").index() - 1]);
                 });
                 break;
-
+    
             case 'popQueue':
                 var song = songListing[songId];
                 if(e.data.length > 1) {
@@ -211,21 +216,12 @@ $(document).ready(() => {
         }
     };
 
-    webSocket.onopen = (event) => {
-        webSocket.send(JSON.stringify({
-            packet: 0
-        }));
-    };
-
-    webSocket.onmessage = (event) => {
-        var json = JSON.parse(event.data);
-
-        switch(json['packet']) {
-
-            //Song Listing Response
-            case 0:
-                songListing = json['listing'];
-                thumbnails = json['thumbnails'];
+    clientWorker.onmessage = (e) => {
+        var command = e.data[0];
+        switch(command) {
+            case 'listing':
+                songListing = e.data[1];
+                thumbnails = e.data[2];
                 for(var i = 0; i < songListing.length; i++) {
                     $("#songListing").append(`<a class="song-option" href="#" data-song="${i}"><strong>[+]</strong> ${songListing[i].title}</a><br>`);
                     var songOption = $(`.song-option[data-song="${i}"]`);
@@ -241,9 +237,6 @@ $(document).ready(() => {
                         playerWorker.postMessage(['queue', songId]);
                     });
                 }
-                break;
-
-            default:
                 break;
         }
     };
