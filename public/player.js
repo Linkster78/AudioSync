@@ -5,8 +5,8 @@ onmessage = function(e) {
     var command = e.data[0];
     switch(command) {
         case 'queue':
-            var songSource = e.data[1];
-            queue.push(songSource);
+            var songId = e.data[1];
+            queue.push(songId);
             if(nowPlaying === undefined) {
                 nextSong();
             }
@@ -15,6 +15,8 @@ onmessage = function(e) {
             nowPlaying = undefined;
             if(queue.length > 0) {
                 nextSong();
+            } else {
+                this.postMessage(['done']);
             }
             break;
     }

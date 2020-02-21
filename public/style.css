@@ -9,9 +9,9 @@ body {
     white-space: nowrap;
 }
 
-::-webkit-scrollbar {
-    display: none;
-}
+#audioPlayer { display: none; }
+
+::-webkit-scrollbar { display: none;}
 
 h1 {
     font-size: 2.7vw;
@@ -36,11 +36,7 @@ a > strong { color: darkgreen; }
 
 a:hover > strong { color: greenyellow; }
 
-#audioPlayer {
-    display: none;
-}
-
-.browser, .queue {
+.browser, .now-playing {
     width: 30%;
     height: 10vh;
     margin: 15px;
@@ -64,19 +60,20 @@ a:hover > strong { color: greenyellow; }
     vertical-align: top;
 }
 
-.song-information { 
+#songPopup {
     position: absolute;
-    width: 40vw;
+    width: 25vw;
     padding: 10px;
-    background-color: black;
-    left: 34%;
-    top: 2%;
+    background-color: #111;
     overflow: hidden;
     z-index: 1;
- }
+}
+
+.now-playing { width: 40%; }
+#nowPlaying { overflow: hidden; }
 
 .song-information img {
-    width: 23%;
+    width: 25%;
     padding-right: 15px;
 }
 
@@ -84,11 +81,33 @@ a:hover > strong { color: greenyellow; }
     display: inline-block;
     vertical-align: top;
     margin: 5px;
-    font-size: 13px;
+    font-size: 12px;
 }
+
+.now-playing h3 { font-size: 20px; }
 
 .song-metadata {
     display: inline-block;
     vertical-align: top;
     font-size: 18px;
+}
+
+.song-progress { margin-top: 25px; }
+
+.song-progress p { display: inline-block; }
+
+#npEndTime { float: right; }
+
+#npProgressBarBackdrop {
+    height: 10px;
+    background-color: #222;
+    margin: 0;
+    padding: 0;
+}
+
+#npProgressBar {
+    background-color: white;
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }

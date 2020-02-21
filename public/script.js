@@ -1,39 +1,112 @@
 var playerWorker, webSocket;
 var songListing, thumbnails;
 
-function updateSongInformation(songId) {
+Number.prototype.clamp = function(min, max) {
+    return Math.min(Math.max(this, min), max);
+};
+
+function updatePopup(songId, link) {
     var song = songListing[songId];
     var songMinutes = Math.floor(song.duration / 60);
     var songSeconds = Math.floor(song.duration % 60).toString();
     if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
     var songLength = songMinutes + ":" + songSeconds;
     $("#songTitle").text(`Title: ${song.title}`);
-    $("#songArtist").text(`Artist: ${song.artist}`);
+    $("#songArtist").text(`Artist(s): ${song.artist}`);
     $("#songLength").text(`Length: ${songLength}`);
     $("#songAlbum").text(`Album: ${song.album}`);
     $("#songYear").text(`Release Year: ${song.year}`);
     $("#songThumbnail").attr("src", thumbnails[song.thumbnail]);
-    $(".song-information").css("display", "");
+    var popup = $("#songPopup");
+    popup.css("display", "");
+    popup.css("left", (link.outerWidth() * 1.6 + link.position().left).clamp(0, $(".browser").outerWidth()));
+    popup.css("top", (link.outerHeight() + link.position().top - popup .outerHeight() / 2).clamp(5, $(window).height() - popup .outerHeight() - 20));
+}
+
+function updateNowPlaying(songId) {
+    if(songId === undefined) {
+        $("#npTitle").text(`Title: NA`);
+        $("#npArtist").text(`Artist(s): NA`);
+        $("#npLength").text(`Length: NA`);
+        $("#npAlbum").text(`Album: NA`);
+        $("#npYear").text(`Release Year: NA`);
+        $("#npThumbnail").attr("src", "noimage.png");
+        $("#npCurrentTime").text("0:00");
+        $("#npEndTime").text("0:00");
+        $("#npProgressBar").css("width", 0);
+    } else {
+        var song = songListing[songId];
+        var songMinutes = Math.floor(song.duration / 60);
+        var songSeconds = Math.floor(song.duration % 60).toString();
+        if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
+        var songLength = songMinutes + ":" + songSeconds;
+        $("#npTitle").text(`Title: ${song.title}`);
+        $("#npArtist").text(`Artist(s): ${song.artist}`);
+        $("#npLength").text(`Length: ${songLength}`);
+        $("#npAlbum").text(`Album: ${song.album}`);
+        $("#npYear").text(`Release Year: ${song.year}`);
+        $("#npThumbnail").attr("src", thumbnails[song.thumbnail]);
+        $("#npCurrentTime").text("0:00");
+        $("#npEndTime").text(songLength);
+        $("#npProgressBar").css("width", 0);
+    }
 }
 
 $(document).ready(() => {
     playerWorker = new Worker("player.js");
     webSocket = new WebSocket(`ws://${window.location.host}/ws`);
 
-    $(".song-information").css("display", "none");
+    updateNowPlaying(undefined);
+    $("#songPopup").css("display", "none");
     $("#songPlayer").get(0).onended = (e) => {
         playerWorker.postMessage(['ended']);
     };
+    $("#npProgressBarBackdrop").click((event) => {
+        var player = $("#songPlayer");
+        if(!player.get(0).paused) {
+            var progressBarBackdrop = $(event.target).closest("#npProgressBarBackdrop");
+            var parentOffset = progressBarBackdrop.parent().offset();
+            var relX = event.pageX - parentOffset.left;
+            var newProgress = relX / progressBarBackdrop.width();
+            var player = $("#songPlayer");
+            player.get(0).currentTime = newProgress * player.get(0).duration;
+            var songProgress = player.get(0).currentTime;
+            var songMinutes = Math.floor(songProgress / 60);
+            var songSeconds = Math.floor(songProgress % 60).toString();
+            if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
+            var songLength = songMinutes + ":" + songSeconds;
+            $("#npCurrentTime").text(songLength);
+            $("#npProgressBar").css("width", `${songProgress / player.get(0).duration*100}%`);
+        }
+    });
+
+    setInterval(() => {
+        var player = $("#songPlayer");
+        if(!player.get(0).paused) {
+            var songProgress = player.get(0).currentTime;
+            var songMinutes = Math.floor(songProgress / 60);
+            var songSeconds = Math.floor(songProgress % 60).toString();
+            if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
+            var songLength = songMinutes + ":" + songSeconds;
+            $("#npCurrentTime").text(songLength);
+            $("#npProgressBar").css("width", `${songProgress / player.get(0).duration*100}%`);
+        }
+    }, 500);
 
     playerWorker.onmessage = (e) => {
         var command = e.data[0];
         switch(command) {
             case 'play':
-                var source = e.data[1];
+                var songId = e.data[1];
+                var source = encodeURIComponent(songListing[songId].file);
                 var player = $("#songPlayer");
                 player.find("source").attr("src", source);
                 player.get(0).load();
                 player.get(0).play();
+                updateNowPlaying(songId);
+                break;
+            case 'done':
+                updateNowPlaying(undefined);
                 break;
         }
     };
@@ -58,14 +131,14 @@ $(document).ready(() => {
                 }
                 $("#songListing > a").mouseenter((event) => {
                     var songId = $(event.target).closest("a").attr("data-song");
-                    updateSongInformation(songId);
+                    updatePopup(songId, $(event.target).closest("a"));
                 });
                 $("#songListing > a").mouseleave((event) => {
-                    $(".song-information").css("display", "none");
+                    $("#songPopup").css("display", "none");
                 });
                 $("#songListing > a").click((event) => {
                     var songId = $(event.target).closest("a").attr("data-song");
-                    playerWorker.postMessage(['queue', encodeURIComponent(songListing[songId].file)]);
+                    playerWorker.postMessage(['queue', songId]);
                 });
                 break;
 

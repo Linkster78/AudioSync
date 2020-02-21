@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Music Listen-Along</title>
+        <title>Music-Along</title>
         
         <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.10/pako_inflate.min.js"></script>
@@ -17,22 +17,39 @@
         <div class="song-information" id="songPopup">
             <img id="songThumbnail" src="">
             <div class="song-metadata">
-                <h3 id="songTitle">Title:</h3><br>
-                <h3 id="songArtist">Artist:</h3><br>
-                <h3 id="songLength">Length:</h3><br>
-                <h3 id="songAlbum">Album:</h3><br>
-                <h3 id="songYear">Release Year:</h3>
+                <h3 id="songTitle"></h3><br>
+                <h3 id="songArtist"></h3><br>
+                <h3 id="songLength"></h3><br>
+                <h3 id="songAlbum"></h3><br>
+                <h3 id="songYear"></h3>
             </div>
         </div>
 
         <div class="browser">
-            <h1>Music Listen-Along</h1>
+            <h1>Available Songs</h1>
             <div id="songListing"></div>
         </div>
 
-        <div class="queue">
-            <h1>Song Queue</h1>
-            <div id="songQueue"></div>
+        <div class="now-playing">
+            <h1>Now Playing</h1>
+            <div id="nowPlaying" class="song-information">
+                <img id="npThumbnail" src="">
+                <div class="song-metadata">
+                    <h3 id="npTitle"></h3><br>
+                    <h3 id="npArtist"></h3><br>
+                    <h3 id="npLength"></h3><br>
+                    <h3 id="npAlbum"></h3><br>
+                    <h3 id="npYear"></h3>
+                </div>
+                <div class="song-progress">
+                    <p id="npCurrentTime">0:00</p>
+                    <p id="npEndTime">0:00</p>
+                    <div id="npProgressBarBackdrop">
+                        <div id="npProgressBar"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="queue"></div>
         </div>
     </body>
 </html>
