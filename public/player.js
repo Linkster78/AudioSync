@@ -13,6 +13,13 @@ onmessage = function(e) {
                 this.postMessage(['pushQueue', songId]);
             }
             break;
+
+        case 'unqueue':
+            var queuePosition = e.data[1];
+            queue.splice(queuePosition, 1);
+            this.postMessage(['popQueue', queuePosition]);
+            break;
+
         case 'skip':
             nowPlaying = undefined;
             if(queue.length > 0) {
@@ -28,5 +35,5 @@ function nextSong() {
     nowPlaying = queue[0];
     queue.shift();
     postMessage(['play', nowPlaying]);
-    this.postMessage(['popQueue', nowPlaying]);
+    this.postMessage(['popQueue']);
 }

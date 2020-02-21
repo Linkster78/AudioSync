@@ -130,9 +130,10 @@ $(document).ready(() => {
 
             case 'done':
                 updateNowPlaying(undefined);
-                var source = $("#songPlayer").find("source").get(0);
+                var player = $("#songPlayer").get(0);
+                var source = $("#songPlayer source").get(0);
                 source.removeAttribute('src');
-                source.load();
+                player.load();
                 break;
 
             case 'pushQueue':
@@ -143,13 +144,20 @@ $(document).ready(() => {
                 var songSeconds = Math.floor(song.duration % 60).toString();
                 if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
                 var songLength = songMinutes + ":" + songSeconds;
-                queue.append(`<tr data-song="${songId}"><td>${queue.find("tr").length}.</td><td>${song.title}</td><td>${song.artist}</td><td>${songLength}</td></tr>`);
+                queue.append(`<tr data-song="${songId}"><td>${queue.find("tr").length}.</td><td><a href="#" class="queued-song">${song.title}</a></td><td>${song.artist}</td><td>${songLength}</td></tr>`);
+                queue.find(`tr:eq(${queue.find("tr").length - 1})`).find(".queued-song").click((event) => {
+                    playerWorker.postMessage(['unqueue', $(event.target).closest("tr").index() - 1]);
+                });
                 break;
 
             case 'popQueue':
-                var songId = e.data[1];
                 var song = songListing[songId];
-                $(`#queue tr[data-song="${songId}"]`).first().remove();
+                if(e.data.length > 1) {
+                    var queuePosition = e.data[1];
+                    $(`#queue tr:eq(${queuePosition + 1})`).remove();
+                } else {
+                    $(`#queue tr:eq(1)`).remove();
+                };
                 $("#queue tr").each((index) => {
                     if(index != 0) {
                         $(`#queue tr:eq(${index})`).find("td").first().text(`${index}.`);

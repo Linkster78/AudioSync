@@ -39,10 +39,16 @@ h1 {
 
 .skip-button, .skip-button:link, .skip-button:visited, .skip-button:active, .skip-button:hover,
 .pause-button, .pause-button:link, .pause-button:visited, .pause-button:active, .pause-button:hover,
-.play-button, .play-button:link, .play-button:visited, .play-button:active, .play-button:hover {
+.play-button, .play-button:link, .play-button:visited, .play-button:active, .play-button:hover,
+.queued-song, .queued-song:link, .queued-song:visited, .queued-song:active, .queued-song:hover {
     color: gray;
     text-decoration: none;
     font-size: 16px;
+}
+
+.queued-song:hover { 
+    color: white;
+    text-decoration: line-through;
 }
 
 .skip-button:hover, .pause-button:hover, .play-button:hover { color: white; }
