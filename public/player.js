@@ -9,17 +9,11 @@ onmessage = function(e) {
             queue.push(songId);
             if(nowPlaying === undefined) {
                 nextSong();
+            } else {
+                this.postMessage(['pushQueue', songId]);
             }
             break;
         case 'skip':
-            nowPlaying = undefined;
-            if(queue.length > 0) {
-                nextSong();
-            } else {
-                this.postMessage(['done']);
-            }
-            break;
-        case 'ended':
             nowPlaying = undefined;
             if(queue.length > 0) {
                 nextSong();
@@ -34,4 +28,5 @@ function nextSong() {
     nowPlaying = queue[0];
     queue.shift();
     postMessage(['play', nowPlaying]);
+    this.postMessage(['popQueue', nowPlaying]);
 }

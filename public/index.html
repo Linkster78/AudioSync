@@ -45,14 +45,26 @@
                 <div class="song-controls">
                     <p id="npCurrentTime">0:00</p>
                     <a href="#" class="skip-button" id="skipButton"><strong>[>>]</strong> Skip</a>
-                    <a href="#" class="toggle-button" id="toggleButton"><strong>[&#10073;&#10073; &#9658;]</strong> Play/Pause</a>
+                    <a href="#" class="pause-button" id="toggleButton"><strong>[&#10073;&#10073;]</strong> Pause</a>
                     <p id="npEndTime">0:00</p>
                     <div id="npProgressBarBackdrop">
                         <div id="npProgressBar"></div>
                     </div>
                 </div>
             </div>
-            <div id="queue"></div>
+            <div class="queue-parent">
+                <h2>Next Up</h2>
+                <div class="queue-wrapper">
+                    <table id="queue">
+                        <tr>
+                            <th style="width:7%">Order</th>
+                            <th style="width:40%">Title</th>
+                            <th style="width:40%">Artist</th>
+                            <th style="width:8%">Length</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
         </div>
     </body>
 </html>

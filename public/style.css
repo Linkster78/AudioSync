@@ -7,6 +7,7 @@ body {
     width: 100%;
     height: 100%;
     white-space: nowrap;
+    scrollbar-color: transparent transparent;
 }
 
 #audioPlayer { display: none; }
@@ -36,29 +37,27 @@ h1 {
 
 .song-option:hover > strong { color: greenyellow; }
 
-.skip-button, .skip-button:link, .skip-button:visited, .skip-button:active, .skip-button:hover {
+.skip-button, .skip-button:link, .skip-button:visited, .skip-button:active, .skip-button:hover,
+.pause-button, .pause-button:link, .pause-button:visited, .pause-button:active, .pause-button:hover,
+.play-button, .play-button:link, .play-button:visited, .play-button:active, .play-button:hover {
     color: gray;
     text-decoration: none;
     font-size: 16px;
 }
 
-.skip-button:hover { color: white; }
+.skip-button:hover, .pause-button:hover, .play-button:hover { color: white; }
 
-.skip-button > strong { color: goldenrod; }
+.skip-button > strong { color: purple; }
 
-.skip-button:hover > strong { color: gold; }
+.skip-button:hover > strong { color: magenta; }
 
-.toggle-button, .toggle-button:link, .toggle-button:visited, .toggle-button:active, .toggle-button:hover {
-    color: gray;
-    text-decoration: none;
-    font-size: 16px;
-}
+.pause-button > strong { color: goldenrod; }
 
-.toggle-button:hover { color: white; }
+.pause-button:hover > strong { color: gold; }
 
-.toggle-button > strong { color: darkgreen; }
+.play-button > strong { color: darkgreen; }
 
-.toggle-button:hover > strong { color: green; }
+.play-button:hover > strong { color: green; }
 
 .browser, .now-playing {
     width: 30%;
@@ -72,7 +71,6 @@ h1 {
     height: 87vh;
     overflow-x: hidden;
     overflow-y: scroll;
-    scrollbar-color: transparent transparent;
 }
 
 #songPopup {
@@ -84,7 +82,11 @@ h1 {
     z-index: 1;
 }
 
-.now-playing { width: 40%; }
+.now-playing { 
+    width: 40%; 
+    height: 100%;
+}
+
 #nowPlaying { overflow: hidden; }
 
 .song-information img {
@@ -107,7 +109,7 @@ h1 {
     font-size: 18px;
 }
 
-.song-controls { margin-top: 25px; }
+.song-controls { margin: 25px 0; }
 
 .song-controls p { display: inline-block; }
 
@@ -125,4 +127,34 @@ h1 {
     height: 100%;
     margin: 0;
     padding: 0;
+}
+
+.queue-parent h2 { width: 100%; }
+
+.queue-wrapper {
+    height: 50vh;
+    overflow-y: scroll;
+}
+
+.queue-parent table {
+    width: 100%;
+    text-align: left;
+    table-layout: fixed;
+}
+
+.queue-parent th {
+    font-weight: bold;
+    font-size: 16px;
+    border-bottom: 1px solid whitesmoke;
+}
+
+.queue-parent td {
+    height: 25px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 0 10px 0 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    border-right: 1em solid transparent;
+    border-bottom: 1px solid #FFFA;
 }

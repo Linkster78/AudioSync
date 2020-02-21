@@ -33,7 +33,6 @@ function updateNowPlaying(songId) {
         $("#npThumbnail").attr("src", "noimage.png");
         $("#npCurrentTime").text("0:00");
         $("#npEndTime").text("0:00");
-        $("#npProgressBar").css("width", 0);
     } else {
         var song = songListing[songId];
         var songMinutes = Math.floor(song.duration / 60);
@@ -48,8 +47,12 @@ function updateNowPlaying(songId) {
         $("#npThumbnail").attr("src", thumbnails[song.thumbnail]);
         $("#npCurrentTime").text("0:00");
         $("#npEndTime").text(songLength);
-        $("#npProgressBar").css("width", 0);
     }
+    $("#npProgressBar").css("width", 0);
+    var toggleButton = $("#toggleButton");
+    toggleButton.html("<strong>[&#10073;&#10073;]</strong> Pause");
+    toggleButton.addClass("pause-button");
+    toggleButton.removeClass("play-button");
 }
 
 $(document).ready(() => {
@@ -59,7 +62,7 @@ $(document).ready(() => {
     updateNowPlaying(undefined);
     $("#songPopup").css("display", "none");
     $("#songPlayer").get(0).onended = (e) => {
-        playerWorker.postMessage(['ended']);
+        playerWorker.postMessage(['skip']);
     };
     $("#npProgressBarBackdrop").click((event) => {
         var player = $("#songPlayer");
@@ -85,10 +88,17 @@ $(document).ready(() => {
     $("#toggleButton").click((event) => {
         var player = $("#songPlayer");
         var domPlayer = player.get(0);
+        var toggleButton = $("#toggleButton");
         if(domPlayer.paused) {
             domPlayer.play();
+            toggleButton.html("<strong>[&#10073;&#10073;]</strong> Pause");
+            toggleButton.addClass("pause-button");
+            toggleButton.removeClass("play-button");
         } else {
             domPlayer.pause();
+            toggleButton.html("<strong>[&#9658;]</strong> Play");
+            toggleButton.addClass("play-button");
+            toggleButton.removeClass("pause-button");
         }
     });
 
@@ -111,18 +121,40 @@ $(document).ready(() => {
             case 'play':
                 var songId = e.data[1];
                 var source = encodeURIComponent(songListing[songId].file);
-                var player = $("#songPlayer");
-                player.find("source").attr("src", source);
-                player.get(0).load();
-                player.get(0).play();
+                var player = $("#songPlayer").get(0);
+                $("#songPlayer source").attr("src", source);
+                player.load();
+                player.play();
                 updateNowPlaying(songId);
                 break;
 
             case 'done':
                 updateNowPlaying(undefined);
-                var player = $("#songPlayer");
-                player.find("source").attr("src", "");
-                player.get(0).load();
+                var source = $("#songPlayer").find("source").get(0);
+                source.removeAttribute('src');
+                source.load();
+                break;
+
+            case 'pushQueue':
+                var songId = e.data[1];
+                var song = songListing[songId];
+                var queue = $("#queue");
+                var songMinutes = Math.floor(song.duration / 60);
+                var songSeconds = Math.floor(song.duration % 60).toString();
+                if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
+                var songLength = songMinutes + ":" + songSeconds;
+                queue.append(`<tr data-song="${songId}"><td>${queue.find("tr").length}.</td><td>${song.title}</td><td>${song.artist}</td><td>${songLength}</td></tr>`);
+                break;
+
+            case 'popQueue':
+                var songId = e.data[1];
+                var song = songListing[songId];
+                $(`#queue tr[data-song="${songId}"]`).first().remove();
+                $("#queue tr").each((index) => {
+                    if(index != 0) {
+                        $(`#queue tr:eq(${index})`).find("td").first().text(`${index}.`);
+                    }
+                });
                 break;
         }
     };
