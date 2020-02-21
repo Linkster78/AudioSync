@@ -3,8 +3,6 @@ This is a project of mine designed to play audio files to multiple users connect
 
 ## TODO
 * Volume Slider
-* Song List Filter
-* Song List Search Bar (Filter)
 * Parties
 * Song Request System
 * Audio Visualizer
