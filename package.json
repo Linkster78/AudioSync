@@ -12,9 +12,7 @@
     "crypto": "^1.0.1",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
-    "fluent-ffmpeg": "^2.1.2",
     "music-metadata": "^6.3.4",
-    "wavefile": "^11.0.0",
-    "zlib": "^1.0.5"
+    "util": "^0.12.1"
   }
 }
