@@ -11,6 +11,14 @@ onmessage = function(e) {
                 nextSong();
             }
             break;
+        case 'skip':
+            nowPlaying = undefined;
+            if(queue.length > 0) {
+                nextSong();
+            } else {
+                this.postMessage(['done']);
+            }
+            break;
         case 'ended':
             nowPlaying = undefined;
             if(queue.length > 0) {

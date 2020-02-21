@@ -79,6 +79,18 @@ $(document).ready(() => {
             $("#npProgressBar").css("width", `${songProgress / player.get(0).duration*100}%`);
         }
     });
+    $("#skipButton").click((event) => {
+        playerWorker.postMessage(['skip']);
+    });
+    $("#toggleButton").click((event) => {
+        var player = $("#songPlayer");
+        var domPlayer = player.get(0);
+        if(domPlayer.paused) {
+            domPlayer.play();
+        } else {
+            domPlayer.pause();
+        }
+    });
 
     setInterval(() => {
         var player = $("#songPlayer");
@@ -105,9 +117,12 @@ $(document).ready(() => {
                 player.get(0).play();
                 updateNowPlaying(songId);
                 break;
-                
+
             case 'done':
                 updateNowPlaying(undefined);
+                var player = $("#songPlayer");
+                player.find("source").attr("src", "");
+                player.get(0).load();
                 break;
         }
     };
@@ -128,7 +143,7 @@ $(document).ready(() => {
                 songListing = json['listing'];
                 thumbnails = json['thumbnails'];
                 for(var i = 0; i < songListing.length; i++) {
-                    $("#songListing").append(`<a href="#" data-song="${i}"><strong>[+]</strong> ${songListing[i].title}</a><br>`);
+                    $("#songListing").append(`<a class="song-option" href="#" data-song="${i}"><strong>[+]</strong> ${songListing[i].title}</a><br>`);
                 }
                 $("#songListing > a").mouseenter((event) => {
                     var songId = $(event.target).closest("a").attr("data-song");

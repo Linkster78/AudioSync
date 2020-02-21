@@ -19,7 +19,7 @@ h1 {
     text-decoration: underline;
 }
 
-a, a:link, a:visited, a:active, a:hover {
+.song-option, .song-option:link, .song-option:visited, .song-option:active, .song-option:hover {
     color: gray;
     text-decoration: none;
     font-size: 16px;
@@ -27,14 +27,38 @@ a, a:link, a:visited, a:active, a:hover {
     transition-property: font-size;
 }
 
-a:hover {
+.song-option:hover {
     color: white;
     font-size: 23px;
 }
 
-a > strong { color: darkgreen; }
+.song-option > strong { color: darkgreen; }
 
-a:hover > strong { color: greenyellow; }
+.song-option:hover > strong { color: greenyellow; }
+
+.skip-button, .skip-button:link, .skip-button:visited, .skip-button:active, .skip-button:hover {
+    color: gray;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.skip-button:hover { color: white; }
+
+.skip-button > strong { color: goldenrod; }
+
+.skip-button:hover > strong { color: gold; }
+
+.toggle-button, .toggle-button:link, .toggle-button:visited, .toggle-button:active, .toggle-button:hover {
+    color: gray;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.toggle-button:hover { color: white; }
+
+.toggle-button > strong { color: darkgreen; }
+
+.toggle-button:hover > strong { color: green; }
 
 .browser, .now-playing {
     width: 30%;
@@ -83,9 +107,9 @@ a:hover > strong { color: greenyellow; }
     font-size: 18px;
 }
 
-.song-progress { margin-top: 25px; }
+.song-controls { margin-top: 25px; }
 
-.song-progress p { display: inline-block; }
+.song-controls p { display: inline-block; }
 
 #npEndTime { float: right; }
 
