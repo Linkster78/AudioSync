@@ -1,6 +1,12 @@
 var queue = [];
 var nowPlaying;
 
+setInterval(() => {
+    if(!(nowPlaying === undefined)) {
+        this.postMessage(['updateTime']);
+    }
+}, 500);
+
 onmessage = function(e) {
     var command = e.data[0];
     switch(command) {

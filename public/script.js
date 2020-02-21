@@ -61,6 +61,7 @@ $(document).ready(() => {
 
     updateNowPlaying(undefined);
     $("#songPopup").css("display", "none");
+    $("#selectFilter").val("none");
     $("#songPlayer").get(0).onended = (e) => {
         playerWorker.postMessage(['skip']);
     };
@@ -101,19 +102,51 @@ $(document).ready(() => {
             toggleButton.removeClass("pause-button");
         }
     });
-
-    setInterval(() => {
-        var player = $("#songPlayer");
-        if(!player.get(0).paused) {
-            var songProgress = player.get(0).currentTime;
-            var songMinutes = Math.floor(songProgress / 60);
-            var songSeconds = Math.floor(songProgress % 60).toString();
-            if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
-            var songLength = songMinutes + ":" + songSeconds;
-            $("#npCurrentTime").text(songLength);
-            $("#npProgressBar").css("width", `${songProgress / player.get(0).duration*100}%`);
+    $("#selectFilter").change((event) => {
+        var filter = $(event.target).val();
+        $("#songListing").empty();
+        if(filter == "none") {
+            for(var i = 0; i < songListing.length; i++) {
+                $("#songListing").append(`<a class="song-option" href="#" data-song="${i}"><strong>[+]</strong> ${songListing[i].title}</a><br>`);
+            }
+        } else {
+            var categories = Array.from(new Set(songListing.map((song) => song[filter]))).sort();
+            for(var i = 0; i < categories.length; i++) {
+                var category = categories[i];
+                $("#songListing").append(`<a class="song-category" href="#" data-category="${i}"><strong>&#9654;</strong> ${category}</a><br><div style="display:none;" class="category" data-category="${i}"></div`);
+            }
+            $(".song-category").click((event) => {
+                var categoryId = $(event.target).closest("a").attr("data-category");
+                var categoryDiv = $(`.category[data-category="${categoryId}"]`);
+                if(categoryDiv.css("display") == "none") {
+                    categoryDiv.css("display", "");
+                    $(`.song-category[data-category="${categoryId}"] strong`).html("&#9660;");
+                } else {
+                    categoryDiv.css("display", "none");
+                    $(`.song-category[data-category="${categoryId}"] strong`).html("&#9654;");
+                }
+            });
+            for(var i = 0; i < songListing.length; i++) {
+                var categoryId = categories.indexOf(songListing[i][filter]);
+                var category = $(`.category[data-category="${categoryId}"]`);
+                category.append(`<a class="song-option" href="#" data-song="${i}"><strong>[+]</strong> ${songListing[i].title}</a><br>`);
+            }
         }
-    }, 500);
+        for(var i = 0; i < songListing.length; i++) {
+            var songOption = $(`.song-option[data-song="${i}"]`);
+            songOption.mouseenter((event) => {
+                var songId = $(event.target).closest("a").attr("data-song");
+                updatePopup(songId, $(event.target).closest("a"));
+            });
+            songOption.mouseleave((event) => {
+                $("#songPopup").css("display", "none");
+            });
+            songOption.click((event) => {
+                var songId = $(event.target).closest("a").attr("data-song");
+                playerWorker.postMessage(['queue', songId]);
+            });
+        }
+    });
 
     playerWorker.onmessage = (e) => {
         var command = e.data[0];
@@ -134,6 +167,17 @@ $(document).ready(() => {
                 var source = $("#songPlayer source").get(0);
                 source.removeAttribute('src');
                 player.load();
+                break;
+
+            case 'updateTime':
+                var player = $("#songPlayer");
+                var songProgress = player.get(0).currentTime;
+                var songMinutes = Math.floor(songProgress / 60);
+                var songSeconds = Math.floor(songProgress % 60).toString();
+                if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
+                var songLength = songMinutes + ":" + songSeconds;
+                $("#npCurrentTime").text(songLength);
+                $("#npProgressBar").css("width", `${songProgress / player.get(0).duration*100}%`);
                 break;
 
             case 'pushQueue':
@@ -184,18 +228,19 @@ $(document).ready(() => {
                 thumbnails = json['thumbnails'];
                 for(var i = 0; i < songListing.length; i++) {
                     $("#songListing").append(`<a class="song-option" href="#" data-song="${i}"><strong>[+]</strong> ${songListing[i].title}</a><br>`);
+                    var songOption = $(`.song-option[data-song="${i}"]`);
+                    songOption.mouseenter((event) => {
+                        var songId = $(event.target).closest("a").attr("data-song");
+                        updatePopup(songId, $(event.target).closest("a"));
+                    });
+                    songOption.mouseleave((event) => {
+                        $("#songPopup").css("display", "none");
+                    });
+                    songOption.click((event) => {
+                        var songId = $(event.target).closest("a").attr("data-song");
+                        playerWorker.postMessage(['queue', songId]);
+                    });
                 }
-                $("#songListing > a").mouseenter((event) => {
-                    var songId = $(event.target).closest("a").attr("data-song");
-                    updatePopup(songId, $(event.target).closest("a"));
-                });
-                $("#songListing > a").mouseleave((event) => {
-                    $("#songPopup").css("display", "none");
-                });
-                $("#songListing > a").click((event) => {
-                    var songId = $(event.target).closest("a").attr("data-song");
-                    playerWorker.postMessage(['queue', songId]);
-                });
                 break;
 
             default:

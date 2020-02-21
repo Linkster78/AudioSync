@@ -28,6 +28,12 @@
 
         <div class="browser">
             <h1>Available Songs</h1>
+            Filter By: <select class="select" id="selectFilter">
+                <option value="none">None</option>
+                <option value="artist">Artist</option>
+                <option value="album">Album</option>
+                <option value="year">Year</option>
+            </select>
             <div id="songListing"></div>
         </div>
 
@@ -57,10 +63,10 @@
                 <div class="queue-wrapper">
                     <table id="queue">
                         <tr>
-                            <th style="width:7%">Order</th>
-                            <th style="width:45%">Title</th>
-                            <th style="width:40%">Artist</th>
-                            <th style="width:8%">Length</th>
+                            <th style="width:10%">Order</th>
+                            <th style="width:41%">Title</th>
+                            <th style="width:37%">Artist</th>
+                            <th style="width:12%">Length</th>
                         </tr>
                     </table>
                 </div>
