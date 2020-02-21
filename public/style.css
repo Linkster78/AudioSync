@@ -51,15 +51,6 @@ a:hover > strong { color: greenyellow; }
     scrollbar-color: transparent transparent;
 }
 
-.sidebar {
-    width: 60%;
-    height: 100%;
-    margin: 15px;
-    overflow: hidden;
-    display: inline-block;
-    vertical-align: top;
-}
-
 #songPopup {
     position: absolute;
     width: 25vw;

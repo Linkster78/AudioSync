@@ -105,6 +105,7 @@ $(document).ready(() => {
                 player.get(0).play();
                 updateNowPlaying(songId);
                 break;
+                
             case 'done':
                 updateNowPlaying(undefined);
                 break;
