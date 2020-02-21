@@ -238,6 +238,10 @@ $(document).ready(() => {
                     });
                 }
                 break;
+
+            case 'abort':
+                document.body.textContent = "Connection to the server has ended.";
+                break;
         }
     };
 });

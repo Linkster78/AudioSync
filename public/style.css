@@ -82,13 +82,18 @@ h1 {
 .play-button > strong { color: darkgreen; }
 .play-button:hover > strong { color: green; }
 
-.browser, .now-playing {
-    width: 30%;
-    height: 10vh;
+.browser, .now-playing, .session {
+    height: 100%;
     margin: 15px;
     display: inline-block;
     vertical-align: top;
 }
+
+.browser { width: 30%; }
+.now-playing { width: 40%; }
+.session { width: 20%; }
+
+#nowPlaying { overflow: hidden; }
 
 #songListing {
     height: 80vh;
@@ -105,18 +110,10 @@ h1 {
     z-index: 1;
 }
 
-.now-playing { 
-    width: 40%;
-    height: 100%;
-}
-
-#nowPlaying { overflow: hidden; }
-
 .song-information img {
     width: 25%;
     padding-right: 15px;
 }
-
 .song-information h3 {
     display: inline-block;
     vertical-align: top;
@@ -133,7 +130,6 @@ h1 {
 }
 
 .song-controls { margin: 25px 0; }
-
 .song-controls p { display: inline-block; }
 
 #npEndTime { float: right; }

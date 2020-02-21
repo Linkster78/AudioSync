@@ -1,16 +1,18 @@
 const audio = require('./audio');
-const party = require('./party');
+const party = require('./session');
+const { uuid } = require('uuidv4');
 
 var configureWebSocket = function(ws, app) {
     app.ws('/ws', (ws, req) => {
+        ws.uuid = uuid();
+
         ws.on('message', (msg) => {
             var json = JSON.parse(msg);
             switch(json['packet']) {
 
-                //Song Listing Request
-                case 0:
+                case 'listing':
                     ws.send(JSON.stringify({
-                        packet: 0,
+                        packet: 'listing',
                         listing: audio.songStore,
                         thumbnails: audio.thumbnailStore
                     }));
@@ -19,6 +21,10 @@ var configureWebSocket = function(ws, app) {
                 default:
                     break;
             }
+        });
+
+        ws.on('close', () => {
+            
         });
     });
 }

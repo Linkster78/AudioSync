@@ -4,7 +4,7 @@ webSocket = new WebSocket(`ws://${self.location.host}/ws`);
 
 webSocket.onopen = (event) => {
     webSocket.send(JSON.stringify({
-        packet: 0
+        packet: 'listing'
     }));
 };
 
@@ -14,7 +14,7 @@ webSocket.onmessage = (event) => {
     switch(json['packet']) {
 
         //Song Listing Response
-        case 0:
+        case 'listing':
             var songListing = json['listing'];
             var thumbnails = json['thumbnails'];
             this.postMessage(['listing', songListing, thumbnails]);
@@ -23,4 +23,8 @@ webSocket.onmessage = (event) => {
         default:
             break;
     }
+};
+
+webSocket.onclose = (event) => {
+    this.postMessage(['abort']);
 };
