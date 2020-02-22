@@ -32,6 +32,27 @@ h1 {
     font-family: monospace;
 }
 
+.input {
+    background-color: #222;
+    border: #666 solid 2px;
+    color: #FFF;
+    padding: 4px;
+    margin-right: 5px;
+    font-family: monospace;
+}
+
+.button {
+    padding: 4px;
+    background-color: #111;
+    color: #FFF;
+    border: #444 solid 2px;
+    font-family: monospace;
+}
+
+.button:hover {
+    background-color: #222;
+}
+
 .category {
     margin-left: 10px;
 }

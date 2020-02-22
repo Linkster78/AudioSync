@@ -13,8 +13,13 @@ var createSession = function(uuid) {
     
     var session = {
         code: sessionCode,
-        members: [uuid]
+        members: [uuid],
+        ready: {},
+        ping: {},
+        queue: [],
+        nowPlaying: undefined
     };
+    session.ready[uuid] = false;
 
     sessions.push(session);
     return session;
@@ -30,12 +35,22 @@ var disconnectMember = function(uuid) {
     }
 }
 
+var hasSession = function(uuid) {
+    return sessions.some((session) => session.members.includes(uuid));
+}
+
 var getSessionByUUID = function(uuid) {
     return sessions.find((session) => session.members.includes(uuid));
 }
 
+var getSessionByCode = function(code) {
+    return sessions.find((session) => session.code == code);
+}
+
 module.exports = {
     createSession: createSession,
-    disconnectMember: disconnectMember,
-    getSessionByUUID: getSessionByUUID
+    hasSession: hasSession,
+    getSessionByUUID: getSessionByUUID,
+    getSessionByCode: getSessionByCode,
+    disconnectMember: disconnectMember
 };
