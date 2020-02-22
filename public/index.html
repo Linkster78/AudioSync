@@ -50,13 +50,19 @@
                     <a href="#" class="skip-button" id="skipButton"><strong>[>>]</strong> Skip</a>
                     <a href="#" class="pause-button" id="toggleButton"><strong>[&#10073;&#10073;]</strong> Pause</a>
                     <p id="npEndTime">0:00</p>
-                    <div id="npProgressBarBackdrop">
-                        <div id="npProgressBar"></div>
+                    <div id="npProgressBarBackdrop" class="barBackdrop">
+                        <div id="npProgressBar" class="barData"></div>
                     </div>
                 </div>
             </div>
             <div class="queue-parent">
                 <h2>Next Up</h2>
+                <div class="volume-div">
+                    <p>Volume </p>
+                    <div id="volBarBackdrop" class="barBackdrop">
+                        <div id="volBar" class="barData"></div>
+                    </div>
+                </div>
                 <div class="queue-wrapper">
                     <table id="queue">
                         <tr>

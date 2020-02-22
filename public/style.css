@@ -155,26 +155,39 @@ h1 {
 
 #npEndTime { float: right; }
 
-#npProgressBarBackdrop {
+.barBackdrop {
     height: 10px;
     background-color: #222;
     margin: 0;
     padding: 0;
 }
 
-#npProgressBar {
+.barData {
     background-color: white;
     height: 100%;
     margin: 0;
     padding: 0;
 }
 
-.queue-parent h2 { width: 100%; }
-
 .queue-wrapper {
     height: 30vh;
     overflow-y: scroll;
 }
+
+.queue-parent h2 { 
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.volume-div {
+    float: right;
+    width: 25%;
+    margin-right: 18px;
+    align-items: right;
+    text-align: right;
+}
+
+.volume-div p { margin-bottom: 4px; }
 
 .queue-parent table {
     width: 100%;

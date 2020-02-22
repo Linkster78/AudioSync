@@ -91,12 +91,14 @@ var configureWebSocket = function(wss) {
                     var queueIndex = json['index'];
                     if(sessions.hasSession(ws.uuid)) {
                         var session = sessions.getSessionByUUID(ws.uuid);
-                        session.queue.splice(queueIndex, 1);
-                        var queueMessage = JSON.stringify({
-                            packet: 'updateQueue',
-                            queue: session.queue
-                        });
-                        session.members.forEach((member) => webSockets[member].send(queueMessage));
+                        if(session.nowPlaying !== undefined || queueIndex != 0) {
+                            session.queue.splice(queueIndex, 1);
+                            var queueMessage = JSON.stringify({
+                                packet: 'updateQueue',
+                                queue: session.queue
+                            });
+                            session.members.forEach((member) => webSockets[member].send(queueMessage));
+                        }
                     }
                     break;
 

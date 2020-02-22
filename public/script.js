@@ -76,11 +76,20 @@ $(document).ready(() => {
         }
     });
 
+    $("#volBarBackdrop").click((event) => {
+        var progressBarBackdrop = $(event.target).closest("#volBarBackdrop");
+        var parentOffset = progressBarBackdrop.parent().offset();
+        var relX = event.pageX - parentOffset.left;
+        var percentage = relX / progressBarBackdrop.width();
+        $("#volBar").css("width", `${percentage*100}%`);
+        if(howl !== undefined) {
+            howl.volume(percentage);
+        }
+    });
+
     $("#skipButton").click((event) => {
         clientWorker.postMessage(['skip']);
     });
-
-    /* MUSIC COMPLETION = NEXT SONG*/
 
     $("#toggleButton").click((event) => {
         if(howl !== undefined && howl._sounds[0] !== undefined && howl._sounds[0]._paused && !isNaN(howl.seek())) {
@@ -266,6 +275,10 @@ $(document).ready(() => {
                     setTimeout(() => {
                         howl.play();
                         updateNowPlaying(songId);
+                        setTimeout(() => {
+                            var volume = $("#volBar").outerWidth() / $("#volBarBackdrop").outerWidth();
+                            howl.volume(volume);
+                        }, 25);
                     }, time);
                 }
                 break;
@@ -291,6 +304,10 @@ $(document).ready(() => {
                         } else {
                             howl.play();
                         }
+                        setTimeout(() => {
+                            var volume = $("#volBar").outerWidth() / $("#volBarBackdrop").outerWidth();
+                            howl.volume(volume);
+                        }, 25);
                         updateNowPlaying(songId);
                     },
                     onend: () => {
