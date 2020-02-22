@@ -88,7 +88,7 @@ $(document).ready(() => {
 
     $("#toggleButton").click((event) => {
         if(howl._sounds[0]._paused) {
-            clientWorker.postMessage(['resume']);
+            clientWorker.postMessage(['resume', howl.seek()]);
         } else {
             clientWorker.postMessage(['pause']);
         }
@@ -229,12 +229,14 @@ $(document).ready(() => {
 
             case 'resume':
                 var time = e.data[1];
+                var timestamp = e.data[2];
                 setTimeout(() => {
                     var toggleButton = $("#toggleButton");
                     toggleButton.html("<strong>[&#10073;&#10073;]</strong> Pause");
                     toggleButton.addClass("pause-button");
                     toggleButton.removeClass("play-button");
                     howl.play();
+                    howl.seek(timestamp);
                 }, time);
                 break;
 

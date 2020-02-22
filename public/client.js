@@ -51,7 +51,8 @@ webSocket.onmessage = (event) => {
 
         case 'resume':
             var time = json['time'];
-            this.postMessage(['resume', time]);
+            var timestamp = json['timestamp'];
+            this.postMessage(['resume', time, timestamp]);
             break;
 
         case 'play':
@@ -103,8 +104,10 @@ onmessage = (e) => {
             break;
 
         case 'resume':
+            var time = e.data[1];
             webSocket.send(JSON.stringify({
-                packet: 'resume'
+                packet: 'resume',
+                time: time
             }));
             break;
 

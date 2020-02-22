@@ -118,6 +118,7 @@ var configureWebSocket = function(wss) {
                     break;
 
                 case 'resume':
+                    var time = json['time'];
                     if(sessions.hasSession(ws.uuid)) {
                         var session = sessions.getSessionByUUID(ws.uuid);
                         if(session.nowPlaying !== undefined) {
@@ -125,11 +126,12 @@ var configureWebSocket = function(wss) {
                             session.members.forEach((member) => {
                                 webSockets[member].send(JSON.stringify({
                                     packet: 'resume',
-                                    time: delay - session.ping[member]
+                                    time: delay - session.ping[member],
+                                    timestamp: time
                                 }));
                             });
                             session.paused = false;
-                            session.timeReference = [Date.now() + delay, session.timeReference[1]];
+                            session.timeReference = [Date.now() + delay, Math.floor(time * 1000)];
                         }
                     }
                     break;
