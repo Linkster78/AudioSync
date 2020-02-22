@@ -48,6 +48,7 @@ var configureWebSocket = function(wss) {
                         var code = json['code'];
                         if(!(code === undefined)) {
                             var currentSession = sessions.getSessionByUUID(ws.uuid);
+                            var ping = currentSession.ping[ws.uuid];
                             if(code != currentSession.code) {
                                 var session = sessions.getSessionByCode(code);
                                 if(!(session === undefined)) {
@@ -56,7 +57,9 @@ var configureWebSocket = function(wss) {
                                     ws.send(JSON.stringify({
                                         packet: 'sessionConnection',
                                         code: session.code,
-                                        queue: session.queue
+                                        queue: session.queue,
+                                        nowPlaying: session.nowPlaying,
+                                        songProgress: Date.now() - session.startTime + ping
                                     }));
                                 }
                             }
@@ -84,6 +87,19 @@ var configureWebSocket = function(wss) {
                     }
                     break;
 
+                case 'unqueue':
+                    var queueIndex = json['index'];
+                    if(sessions.hasSession(ws.uuid)) {
+                        var session = sessions.getSessionByUUID(ws.uuid);
+                        session.queue.splice(queueIndex, 1);
+                        var queueMessage = JSON.stringify({
+                            packet: 'updateQueue',
+                            queue: session.queue
+                        });
+                        session.members.forEach((member) => webSockets[member].send(queueMessage));
+                    }
+                    break;
+
                 case 'ready':
                     if(sessions.hasSession(ws.uuid)) {
                         var session = sessions.getSessionByUUID(ws.uuid);
@@ -104,6 +120,7 @@ var configureWebSocket = function(wss) {
                                     time: delay - session.ping[member]
                                 }));
                             });
+                            session.startTime = Date.now() + delay;
                         }
                     }
                     break;

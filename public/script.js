@@ -208,7 +208,7 @@ $(document).ready(() => {
                     var songLength = songMinutes + ":" + songSeconds;
                     queue.append(`<tr data-song="${songId}"><td>${queue.find("tr").length}.</td><td><a href="#" class="queued-song">${song.title}</a></td><td>${song.artist}</td><td>${songLength}</td></tr>`);
                     queue.find(`tr:eq(${queue.find("tr").length - 1})`).find(".queued-song").click((event) => {
-                        /* REMOVE SONG FROM QUEUE */
+                        clientWorker.postMessage(['unqueue', $(event.target).closest("tr").index() - 1]);
                     });
                 });
                 break;
@@ -216,8 +216,6 @@ $(document).ready(() => {
             case 'load':
                 var songId = e.data[1];
                 var source = encodeURIComponent(songListing[songId].file);
-                waiting = true;
-                $("#songPlayer source").attr("src", source);
                 howl = new Howl({
                     src: [source],
                     onload: () => {
@@ -233,6 +231,23 @@ $(document).ready(() => {
                     howl.play();
                     updateNowPlaying(songId);
                 }, time);
+                break;
+
+            case 'playAt':
+                var songId = e.data[1];
+                var songProgress = e.data[2];
+                var timeNow = Date.now();
+                var source = encodeURIComponent(songListing[songId].file);
+                howl = new Howl({
+                    src: [source],
+                    onload: () => {
+                        var delta = Date.now() - timeNow;
+                        var skipTo = (songProgress + delta) / 1000;
+                        howl.play();
+                        howl.seek(skipTo);
+                        updateNowPlaying(songId);
+                    }
+                });
                 break;
 
             case 'abort':

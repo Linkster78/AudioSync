@@ -24,8 +24,11 @@ webSocket.onmessage = (event) => {
         case 'sessionConnection':
             var code = json['code'];
             var sessionQueue = json['queue'];
+            var nowPlaying = json['nowPlaying'];
+            var songProgress = json['songProgress'];
             this.postMessage(['newSession', code]);
             this.postMessage(['updateQueue', sessionQueue]);
+            this.postMessage(['playAt', nowPlaying, songProgress]);
             break;
 
         case 'updateQueue':
@@ -69,6 +72,14 @@ onmessage = (e) => {
             webSocket.send(JSON.stringify({
                 packet: 'queue',
                 song: songId
+            }));
+            break;
+
+        case 'unqueue':
+            var queueIndex = e.data[1];
+            webSocket.send(JSON.stringify({
+                packet: 'unqueue',
+                index: queueIndex
             }));
             break;
 
