@@ -35,6 +35,10 @@ function updateNowPlaying(songId) {
         $("#npThumbnail").attr("src", "noimage.png");
         $("#npCurrentTime").text("0:00");
         $("#npEndTime").text("0:00");
+        var toggleButton = $("#toggleButton");
+        toggleButton.html("<strong>[&#10073;&#10073;]</strong> Pause");
+        toggleButton.addClass("pause-button");
+        toggleButton.removeClass("play-button");
     } else {
         var song = songListing[songId];
         var songMinutes = Math.floor(song.duration / 60);
@@ -51,10 +55,6 @@ function updateNowPlaying(songId) {
         $("#npEndTime").text(songLength);
     }
     $("#npProgressBar").css("width", 0);
-    var toggleButton = $("#toggleButton");
-    toggleButton.html("<strong>[&#10073;&#10073;]</strong> Pause");
-    toggleButton.addClass("pause-button");
-    toggleButton.removeClass("play-button");
 }
 
 $(document).ready(() => {
@@ -87,18 +87,10 @@ $(document).ready(() => {
     });
 
     $("#toggleButton").click((event) => {
-        var toggleButton = $("#toggleButton");
-        console.log(howl);
         if(howl._sounds[0]._paused) {
-            /* SEND PLAY COMMAND */
-            /*toggleButton.html("<strong>[&#10073;&#10073;]</strong> Pause");
-            toggleButton.addClass("pause-button");
-            toggleButton.removeClass("play-button");*/
+            clientWorker.postMessage(['resume']);
         } else {
-            /* SEND PAUSE COMMAND */
-            /*toggleButton.html("<strong>[&#9658;]</strong> Play");
-            toggleButton.addClass("play-button");
-            toggleButton.removeClass("pause-button");*/
+            clientWorker.postMessage(['pause']);
         }
     });
 
@@ -224,6 +216,28 @@ $(document).ready(() => {
                 });
                 break;
 
+            case 'pause':
+                var time = e.data[1];
+                setTimeout(() => {
+                    var toggleButton = $("#toggleButton");
+                    toggleButton.html("<strong>[&#9658;]</strong> Play");
+                    toggleButton.addClass("play-button");
+                    toggleButton.removeClass("pause-button");
+                    howl.pause();
+                }, time);
+                break;
+
+            case 'resume':
+                var time = e.data[1];
+                setTimeout(() => {
+                    var toggleButton = $("#toggleButton");
+                    toggleButton.html("<strong>[&#10073;&#10073;]</strong> Pause");
+                    toggleButton.addClass("pause-button");
+                    toggleButton.removeClass("play-button");
+                    howl.play();
+                }, time);
+                break;
+
             case 'play':
                 var songId = e.data[1];
                 var time = e.data[2];
@@ -236,6 +250,7 @@ $(document).ready(() => {
             case 'playAt':
                 var songId = e.data[1];
                 var songProgress = e.data[2];
+                var paused = e.data[3];
                 var timeNow = Date.now();
                 var source = encodeURIComponent(songListing[songId].file);
                 howl = new Howl({
@@ -243,8 +258,15 @@ $(document).ready(() => {
                     onload: () => {
                         var delta = Date.now() - timeNow;
                         var skipTo = (songProgress + delta) / 1000;
-                        howl.play();
                         howl.seek(skipTo);
+                        if(paused) {
+                            var toggleButton = $("#toggleButton");
+                            toggleButton.html("<strong>[&#9658;]</strong> Play");
+                            toggleButton.addClass("play-button");
+                            toggleButton.removeClass("pause-button");
+                        } else {
+                            howl.play();
+                        }
                         updateNowPlaying(songId);
                     }
                 });

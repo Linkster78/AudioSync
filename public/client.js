@@ -26,9 +26,12 @@ webSocket.onmessage = (event) => {
             var sessionQueue = json['queue'];
             var nowPlaying = json['nowPlaying'];
             var songProgress = json['songProgress'];
+            var paused = json['paused'];
             this.postMessage(['newSession', code]);
-            this.postMessage(['updateQueue', sessionQueue]);
-            this.postMessage(['playAt', nowPlaying, songProgress]);
+            if(sessionQueue !== undefined) {
+                this.postMessage(['updateQueue', sessionQueue]);
+                this.postMessage(['playAt', nowPlaying, songProgress, paused]);
+            }
             break;
 
         case 'updateQueue':
@@ -39,6 +42,16 @@ webSocket.onmessage = (event) => {
         case 'load':
             var songId = json['song'];
             this.postMessage(['load', songId]);
+            break;
+
+        case 'pause':
+            var time = json['time'];
+            this.postMessage(['pause', time]);
+            break;
+
+        case 'resume':
+            var time = json['time'];
+            this.postMessage(['resume', time]);
             break;
 
         case 'play':
@@ -80,6 +93,18 @@ onmessage = (e) => {
             webSocket.send(JSON.stringify({
                 packet: 'unqueue',
                 index: queueIndex
+            }));
+            break;
+
+        case 'pause':
+            webSocket.send(JSON.stringify({
+                packet: 'pause'
+            }));
+            break;
+
+        case 'resume':
+            webSocket.send(JSON.stringify({
+                packet: 'resume'
             }));
             break;
 

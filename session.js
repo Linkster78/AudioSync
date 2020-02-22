@@ -17,7 +17,8 @@ var createSession = function(uuid) {
         ready: {},
         ping: {},
         queue: [],
-        startTime: undefined,
+        paused: false,
+        timeReference: [0, 0],
         nowPlaying: undefined
     };
     session.ready[uuid] = false;

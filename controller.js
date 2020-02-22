@@ -41,17 +41,16 @@ var configureWebSocket = function(wss) {
                         var session = sessions.createSession(ws.uuid);
                         ws.send(JSON.stringify({
                             packet: 'sessionConnection',
-                            code: session.code,
-                            queue: session.queue
+                            code: session.code
                         }));
                     } else {
                         var code = json['code'];
-                        if(!(code === undefined)) {
+                        if(code !== undefined) {
                             var currentSession = sessions.getSessionByUUID(ws.uuid);
                             var ping = currentSession.ping[ws.uuid];
                             if(code != currentSession.code) {
                                 var session = sessions.getSessionByCode(code);
-                                if(!(session === undefined)) {
+                                if(session !== undefined) {
                                     sessions.disconnectMember(ws.uuid);
                                     session.members.push(ws.uuid);
                                     ws.send(JSON.stringify({
@@ -59,7 +58,8 @@ var configureWebSocket = function(wss) {
                                         code: session.code,
                                         queue: session.queue,
                                         nowPlaying: session.nowPlaying,
-                                        songProgress: Date.now() - session.startTime + ping
+                                        songProgress: Date.now() - session.startTime + ping,
+                                        paused: session.paused
                                     }));
                                 }
                             }
@@ -100,6 +100,40 @@ var configureWebSocket = function(wss) {
                     }
                     break;
 
+                case 'pause':
+                    if(sessions.hasSession(ws.uuid)) {
+                        var session = sessions.getSessionByUUID(ws.uuid);
+                        if(session.nowPlaying !== undefined) {
+                            var delay = Object.keys(session.ping).map((uuid) => session.ping[uuid]).max();
+                            session.members.forEach((member) => {
+                                webSockets[member].send(JSON.stringify({
+                                    packet: 'pause',
+                                    time: delay - session.ping[member]
+                                }));
+                            });
+                            session.paused = true;
+                            session.startTime = Date.now() + delay;
+                        }
+                    }
+                    break;
+
+                case 'resume':
+                    if(sessions.hasSession(ws.uuid)) {
+                        var session = sessions.getSessionByUUID(ws.uuid);
+                        if(session.nowPlaying !== undefined) {
+                            var delay = Object.keys(session.ping).map((uuid) => session.ping[uuid]).max();
+                            session.members.forEach((member) => {
+                                webSockets[member].send(JSON.stringify({
+                                    packet: 'resume',
+                                    time: delay - session.ping[member]
+                                }));
+                            });
+                            session.paused = false;
+                            session.startTime = Date.now() + delay;
+                        }
+                    }
+                    break;
+
                 case 'ready':
                     if(sessions.hasSession(ws.uuid)) {
                         var session = sessions.getSessionByUUID(ws.uuid);
@@ -112,7 +146,7 @@ var configureWebSocket = function(wss) {
                                 queue: session.queue
                             });
                             session.members.forEach((member) => webSockets[member].send(queueMessage));
-                            var delay = Object.keys(session.ping).map((uuid) => session.ping[uuid]).max() + 25;
+                            var delay = Object.keys(session.ping).map((uuid) => session.ping[uuid]).max();
                             session.members.forEach((member) => {
                                 webSockets[member].send(JSON.stringify({
                                     packet: 'play',
