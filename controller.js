@@ -136,6 +136,69 @@ var configureWebSocket = function(wss) {
                     }
                     break;
 
+                case 'setTime':
+                    var time = json['time'];
+                    if(sessions.hasSession(ws.uuid)) {
+                        var session = sessions.getSessionByUUID(ws.uuid);
+                        if(session.nowPlaying !== undefined) {
+                            var delay = Object.keys(session.ping).map((uuid) => session.ping[uuid]).max();
+                            session.members.forEach((member) => {
+                                webSockets[member].send(JSON.stringify({
+                                    packet: 'setTime',
+                                    time: delay - session.ping[member],
+                                    timestamp: time
+                                }));
+                            });
+                            session.timeReference = [Date.now() + delay, Math.floor(time * 1000)];
+                        }
+                    }
+                    break;
+
+                case 'skip':
+                    if(sessions.hasSession(ws.uuid)) {
+                        var session = sessions.getSessionByUUID(ws.uuid);
+                        session.nowPlaying = undefined;
+                        var playNullMessage = JSON.stringify({
+                            packet: 'play',
+                            song: undefined,
+                            time: delay - session.ping[ws.uuid]
+                        });
+                        session.members.forEach((member) => webSockets[member].send(playNullMessage));
+                        if(session.queue.length >= 1) {
+                            var loadMessage = JSON.stringify({
+                                packet: 'load',
+                                song: session.queue[0]
+                            });
+                            session.members.forEach((member) => webSockets[member].send(loadMessage));
+                        }
+                    }
+                    break;
+
+                case 'end':
+                    var time = Date.now();
+                    if(sessions.hasSession(ws.uuid)) {
+                        var session = sessions.getSessionByUUID(ws.uuid);
+                        var dist = Math.abs(time - session.lastEnd);
+                        if(dist > 2500) {
+                            session.nowPlaying = undefined;
+                            var playNullMessage = JSON.stringify({
+                                packet: 'play',
+                                song: undefined,
+                                time: delay - session.ping[ws.uuid]
+                            });
+                            session.members.forEach((member) => webSockets[member].send(playNullMessage));
+                            if(session.queue.length >= 1) {
+                                var loadMessage = JSON.stringify({
+                                    packet: 'load',
+                                    song: session.queue[0]
+                                });
+                                session.members.forEach((member) => webSockets[member].send(loadMessage));
+                            }
+                            session.lastEnd = time;
+                        }
+                    }
+                    break;
+
                 case 'ready':
                     if(sessions.hasSession(ws.uuid)) {
                         var session = sessions.getSessionByUUID(ws.uuid);

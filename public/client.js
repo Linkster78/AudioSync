@@ -55,6 +55,12 @@ webSocket.onmessage = (event) => {
             this.postMessage(['resume', time, timestamp]);
             break;
 
+        case 'setTime':
+            var time = json['time'];
+            var timestamp = json['timestamp'];
+            this.postMessage(['setTime', time, timestamp]);
+            break;
+
         case 'play':
             var songId = json['song'];
             var time = json['time'];
@@ -109,6 +115,26 @@ onmessage = (e) => {
                 packet: 'resume',
                 time: time
             }));
+            break;
+
+        case 'setTime':
+            var time = e.data[1];
+            webSocket.send(JSON.stringify({
+                packet: 'setTime',
+                time: time
+            }));
+            break;
+
+        case 'skip':
+            webSocket.send(JSON.stringify({
+                packet: 'skip'
+            }));
+            break;
+
+        case 'end':
+            webSocket.send(JSON.stringify({
+                packet: 'end'
+            }))
             break;
 
         case 'ready':

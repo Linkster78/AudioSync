@@ -66,28 +66,24 @@ $(document).ready(() => {
     $("#inputCode").val("");
 
     $("#npProgressBarBackdrop").click((event) => {
-        if(!howl._sounds[0]._paused) {
+        if(howl !== undefined) {
             var progressBarBackdrop = $(event.target).closest("#npProgressBarBackdrop");
             var parentOffset = progressBarBackdrop.parent().offset();
             var relX = event.pageX - parentOffset.left;
             var newProgress = relX / progressBarBackdrop.width();
-            /* SEND SET TIME COMMAND TO SERVER */
-            var songProgress = howl.seek();
-            var songMinutes = Math.floor(songProgress / 60);
-            var songSeconds = Math.floor(songProgress % 60).toString();
-            if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
-            var songLength = songMinutes + ":" + songSeconds;
-            /*$("#npCurrentTime").text(songLength);
-            $("#npProgressBar").css("width", `${songProgress / player.get(0).duration*100}%`);*/
+            var timestamp = newProgress * howl.duration();
+            clientWorker.postMessage(['setTime', timestamp]);
         }
     });
 
     $("#skipButton").click((event) => {
-        /* SEND SKIP */
+        clientWorker.postMessage(['skip']);
     });
 
+    /* MUSIC COMPLETION = NEXT SONG*/
+
     $("#toggleButton").click((event) => {
-        if(howl._sounds[0]._paused) {
+        if(howl !== undefined && howl._sounds[0] !== undefined && howl._sounds[0]._paused && !isNaN(howl.seek())) {
             clientWorker.postMessage(['resume', howl.seek()]);
         } else {
             clientWorker.postMessage(['pause']);
@@ -149,14 +145,16 @@ $(document).ready(() => {
     });
 
     setInterval(() => {
-        if(howl !== undefined && !howl._sounds[0]._paused) {
+        if(howl !== undefined && howl._sounds[0] !== undefined) {
             var songProgress = howl.seek();
-            var songMinutes = Math.floor(songProgress / 60);
-            var songSeconds = Math.floor(songProgress % 60).toString();
-            if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
-            var songLength = songMinutes + ":" + songSeconds;
-            $("#npCurrentTime").text(songLength);
-            $("#npProgressBar").css("width", `${songProgress / howl.duration()*100}%`);
+            if(!isNaN(songProgress)) {
+                var songMinutes = Math.floor(songProgress / 60);
+                var songSeconds = Math.floor(songProgress % 60).toString();
+                if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
+                var songLength = songMinutes + ":" + songSeconds;
+                $("#npCurrentTime").text(songLength);
+                $("#npProgressBar").css("width", `${songProgress / howl.duration()*100}%`);
+            }
         }
     }, 500);
 
@@ -212,6 +210,9 @@ $(document).ready(() => {
                     src: [source],
                     onload: () => {
                         clientWorker.postMessage(['ready']);
+                    },
+                    onend: () => {
+                        clientWorker.postMessage(['end']);
                     }
                 });
                 break;
@@ -240,13 +241,33 @@ $(document).ready(() => {
                 }, time);
                 break;
 
+            case 'setTime':
+                var time = e.data[1];
+                var timestamp = e.data[2];
+                setTimeout(() => {
+                    howl.seek(timestamp);
+                    var songProgress = howl.seek();
+                    var songMinutes = Math.floor(songProgress / 60);
+                    var songSeconds = Math.floor(songProgress % 60).toString();
+                    if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
+                    var songLength = songMinutes + ":" + songSeconds;
+                    $("#npCurrentTime").text(songLength);
+                    $("#npProgressBar").css("width", `${songProgress / howl.duration()*100}%`);
+                }, time);
+                break;
+
             case 'play':
                 var songId = e.data[1];
                 var time = e.data[2];
-                setTimeout(() => {
-                    howl.play();
-                    updateNowPlaying(songId);
-                }, time);
+                if(songId === undefined) {
+                    howl.unload();
+                    updateNowPlaying(undefined);
+                } else {
+                    setTimeout(() => {
+                        howl.play();
+                        updateNowPlaying(songId);
+                    }, time);
+                }
                 break;
 
             case 'playAt':
@@ -270,13 +291,16 @@ $(document).ready(() => {
                             howl.play();
                         }
                         updateNowPlaying(songId);
+                    },
+                    onend: () => {
+                        clientWorker.postMessage(['end']);
                     }
                 });
                 break;
 
             case 'abort':
                 document.body.textContent = "Connection to the server has ended.";
-                howl.stop();
+                if(howl !== undefined) howl.stop();
                 break;
         }
     };

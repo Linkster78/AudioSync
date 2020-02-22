@@ -19,6 +19,7 @@ var createSession = function(uuid) {
         queue: [],
         paused: false,
         timeReference: [0, 0],
+        lastEnd: 0,
         nowPlaying: undefined
     };
     session.ready[uuid] = false;
