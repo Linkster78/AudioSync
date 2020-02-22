@@ -1,4 +1,4 @@
-const PORT = 80;
+const PORT = 8721;
 const WS_PORT = 8722;
 const musicFolder = "D:/Google Drive/Music/HQ/";
 

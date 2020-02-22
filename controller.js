@@ -171,6 +171,7 @@ var configureWebSocket = function(wss) {
                             });
                             session.members.forEach((member) => webSockets[member].send(loadMessage));
                         }
+                        session.lastEnd = Date.now();
                     }
                     break;
 
@@ -204,6 +205,7 @@ var configureWebSocket = function(wss) {
                         var session = sessions.getSessionByUUID(ws.uuid);
                         session.ready[ws.uuid] = true;
                         if(session.members.every((member) => session.ready[member])) {
+                            session.members.forEach((member) => session.ready[member] = false);
                             session.nowPlaying = session.queue[0];
                             session.queue.shift();
                             var queueMessage = JSON.stringify({

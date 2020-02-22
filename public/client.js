@@ -28,7 +28,7 @@ webSocket.onmessage = (event) => {
             var songProgress = json['songProgress'];
             var paused = json['paused'];
             this.postMessage(['newSession', code]);
-            if(sessionQueue !== undefined) {
+            if(sessionQueue !== undefined && nowPlaying !== undefined) {
                 this.postMessage(['updateQueue', sessionQueue]);
                 this.postMessage(['playAt', nowPlaying, songProgress, paused]);
             }
