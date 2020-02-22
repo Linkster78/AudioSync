@@ -239,6 +239,11 @@ $(document).ready(() => {
                 }
                 break;
 
+            case 'newSession':
+                var code = e.data[1];
+                $("#currentSession").text(`Current Session: ${code}`);
+                break;
+
             case 'abort':
                 document.body.textContent = "Connection to the server has ended.";
                 break;

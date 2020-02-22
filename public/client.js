@@ -4,6 +4,9 @@ webSocket = new WebSocket(`ws://${self.location.host}/ws`);
 
 webSocket.onopen = (event) => {
     webSocket.send(JSON.stringify({
+        packet: 'sessionRequest'
+    }));
+    webSocket.send(JSON.stringify({
         packet: 'listing'
     }));
 };
@@ -18,6 +21,11 @@ webSocket.onmessage = (event) => {
             var songListing = json['listing'];
             var thumbnails = json['thumbnails'];
             this.postMessage(['listing', songListing, thumbnails]);
+            break;
+
+        case 'sessionCreation':
+            var code = json['code'];
+            this.postMessage(['newSession', code]);
             break;
 
         default:

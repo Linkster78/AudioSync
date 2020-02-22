@@ -1,5 +1,5 @@
 const audio = require('./audio');
-const party = require('./session');
+const sessions = require('./session');
 const { uuid } = require('uuidv4');
 
 var configureWebSocket = function(ws, app) {
@@ -18,13 +18,23 @@ var configureWebSocket = function(ws, app) {
                     }));
                     break;
 
+                case 'sessionRequest':
+                    if(sessions.getSessionByUUID(ws.uuid) === undefined) {
+                        var session = sessions.createSession(ws.uuid);
+                        ws.send(JSON.stringify({
+                            packet: 'sessionCreation',
+                            code: session.code
+                        }));
+                    }
+                    break;
+
                 default:
                     break;
             }
         });
 
         ws.on('close', () => {
-            
+            sessions.disconnectMember(ws.uuid);
         });
     });
 }
