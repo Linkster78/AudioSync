@@ -58,7 +58,7 @@ var configureWebSocket = function(wss) {
                                         code: session.code,
                                         queue: session.queue,
                                         nowPlaying: session.nowPlaying,
-                                        songProgress: Date.now() - session.startTime + ping,
+                                        songProgress: (session.paused ? session.timeReference[1] : session.timeReference[1] + Date.now() - session.timeReference[0]),
                                         paused: session.paused
                                     }));
                                 }
@@ -112,7 +112,7 @@ var configureWebSocket = function(wss) {
                                 }));
                             });
                             session.paused = true;
-                            session.startTime = Date.now() + delay;
+                            session.timeReference = [Date.now() + delay, Date.now() + delay - session.timeReference[0] + session.timeReference[1]];
                         }
                     }
                     break;
@@ -129,7 +129,7 @@ var configureWebSocket = function(wss) {
                                 }));
                             });
                             session.paused = false;
-                            session.startTime = Date.now() + delay;
+                            session.timeReference = [Date.now() + delay, session.timeReference[1]];
                         }
                     }
                     break;
@@ -154,7 +154,7 @@ var configureWebSocket = function(wss) {
                                     time: delay - session.ping[member]
                                 }));
                             });
-                            session.startTime = Date.now() + delay;
+                            session.timeReference = [Date.now() + delay, 0];
                         }
                     }
                     break;

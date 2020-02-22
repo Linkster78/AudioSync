@@ -257,7 +257,7 @@ $(document).ready(() => {
                     src: [source],
                     onload: () => {
                         var delta = Date.now() - timeNow;
-                        var skipTo = (songProgress + delta) / 1000;
+                        var skipTo = (songProgress + (paused ? 0 : delta)) / 1000;
                         howl.seek(skipTo);
                         if(paused) {
                             var toggleButton = $("#toggleButton");
