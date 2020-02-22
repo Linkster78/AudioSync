@@ -276,6 +276,7 @@ $(document).ready(() => {
                 var paused = e.data[3];
                 var timeNow = Date.now();
                 var source = encodeURIComponent(songListing[songId].file);
+                if(howl !== undefined) howl.stop();
                 howl = new Howl({
                     src: [source],
                     onload: () => {
