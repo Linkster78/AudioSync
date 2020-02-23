@@ -2,9 +2,8 @@
 <html>
     <head>
         <title>AudioSync</title>
-        
-        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.10/pako_inflate.min.js"></script>
+
+        <script src="https://vuejs.org/js/vue.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.3/howler.core.min.js"></script>
 
         <script src="./script.js"></script>
@@ -12,74 +11,28 @@
     </head>
 
     <body>
-        <div class="song-information" id="songPopup">
-            <img id="songThumbnail" src="">
-            <div class="song-metadata">
-                <h3 id="songTitle"></h3><br>
-                <h3 id="songArtist"></h3><br>
-                <h3 id="songLength"></h3><br>
-                <h3 id="songAlbum"></h3><br>
-                <h3 id="songYear"></h3>
-            </div>
-        </div>
+        <main id="app" class="view">
+            <section class="song-list">
+                <h1>Available Songs</h1>
+                <div>
+                    <song-option class="song-option"
+                        v-for="(song, index) in songListing"
+                        v-bind:title="song.title"
+                        v-bind:key="index">
+                    </song-option>
+                </div>
+            </section>
 
-        <div class="browser">
-            <h1>Available Songs</h1>
-            Filter By: <select class="select" id="selectFilter">
-                <option value="none">None</option>
-                <option value="artist">Artist</option>
-                <option value="album">Album</option>
-                <option value="year">Year</option>
-            </select>
-            <div id="songListing"></div>
-        </div>
+            <section class="player">
+                <h1>Now Playing</h1>
+                <song-metadata class="song-metadata"
+                    v-bind:id="nowPlaying"
+                    v-bind:songlisting="songListing"
+                    v-bind:thumbnails="thumbnails">
+                </song-metadata>
+            </section>
 
-        <div class="now-playing">
-            <h1>Now Playing</h1>
-            <div id="nowPlaying" class="song-information">
-                <img id="npThumbnail" src="">
-                <div class="song-metadata">
-                    <h3 id="npTitle"></h3><br>
-                    <h3 id="npArtist"></h3><br>
-                    <h3 id="npLength"></h3><br>
-                    <h3 id="npAlbum"></h3><br>
-                    <h3 id="npYear"></h3>
-                </div>
-                <div class="song-controls">
-                    <p id="npCurrentTime">0:00</p>
-                    <a href="#" class="skip-button" id="skipButton"><strong>[>>]</strong> Skip</a>
-                    <a href="#" class="pause-button" id="toggleButton"><strong>[&#10073;&#10073;]</strong> Pause</a>
-                    <p id="npEndTime">0:00</p>
-                    <div id="npProgressBarBackdrop" class="barBackdrop">
-                        <div id="npProgressBar" class="barData"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="queue-parent">
-                <h2>Next Up</h2>
-                <div class="volume-div">
-                    <p>Volume </p>
-                    <div id="volBarBackdrop" class="barBackdrop">
-                        <div id="volBar" class="barData"></div>
-                    </div>
-                </div>
-                <div class="queue-wrapper">
-                    <table id="queue">
-                        <tr>
-                            <th style="width:10%">Order</th>
-                            <th style="width:41%">Title</th>
-                            <th style="width:37%">Artist</th>
-                            <th style="width:12%">Length</th>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="session">
-            <h1>Session</h1>
-            <h2 id="currentSession">Session Code:</h2>
-            <input class="input" id="inputCode" placeholder="Session Code"><button class="button" id="buttonConnect">Join Session</button>
-        </div>
+            <section class="session"></section>
+        </main>
     </body>
 </html>
