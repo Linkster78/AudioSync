@@ -1,3 +1,10 @@
+function formatTime(time) {
+    var minutes = Math.floor(time / 60);
+    var seconds = Math.floor(time % 60).toString();
+    if(seconds.length <= 1) seconds = "0" + seconds;
+    return minutes + ":" + seconds;
+}
+
 window.onload = function() {
     var clientWorker;
 
@@ -7,7 +14,7 @@ window.onload = function() {
     });
 
     Vue.component('song-metadata', {
-        props: ['id'],
+        props: ['id', 'song_listing', 'thumbnails'],
         template: `<div>
                         <img v-bind:src="thumbnail">
                         <div>
@@ -20,28 +27,41 @@ window.onload = function() {
                     </div>`,
         computed: {
             thumbnail: function() {
-                return this.id == null ? 'noimage.png' : this.$root.thumbnails[this.$root.songListing[this.id].thumbnail];
+                return this.id == null || this.thumbnails.length == 0 || this.song_listing == 0 ? 'noimage.png' : this.thumbnails[this.song_listing[this.id].thumbnail];
             },
             title: function() {
-                return this.id == null ? 'NA' : this.$root.songListing[this.id].title;
+                return this.id == null || this.song_listing == 0 || this.song_listing == 0 ? 'NA' : this.song_listing[this.id].title;
             },
             artist: function() {
-                return this.id == null ? 'NA' : this.$root.songListing[this.id].artist;
+                return this.id == null || this.song_listing == 0 ? 'NA' : this.song_listing[this.id].artist;
             },
             album: function() {
-                return this.id == null ? 'NA' : this.$root.songListing[this.id].album;
+                return this.id == null || this.song_listing == 0 ? 'NA' : this.song_listing[this.id].album;
             },
             year: function() {
-                return this.id == null ? 'NA' : this.$root.songListing[this.id].year;
+                return this.id == null || this.song_listing == 0 ? 'NA' : this.song_listing[this.id].year;
             },
             songLength: function() {
-                if(this.id == null) return 'NA';
-                var song = this.$root.songListing[this.id];
-                var songMinutes = Math.floor(song.duration / 60);
-                var songSeconds = Math.floor(song.duration % 60).toString();
-                if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
-                var songLength = songMinutes + ":" + songSeconds;
-                return songLength;
+                if(this.id == null || this.song_listing == 0) return 'NA';
+                return formatTime(this.song_listing[this.id].duration);
+            }
+        }
+    });
+
+    Vue.component('song-progress', {
+        props: ['id', 'progress', 'song_listing'],
+        template: `<div>
+                        <input type="range" min="0" step="0.1" v-bind:value="progress" v-bind:max="length">
+                    </div>`,
+        computed: {
+            length: function() {
+                return this.id == null || this.song_listing == 0 ? 0 : this.song_listing[this.id].duration;
+            },
+            songLength: function() {
+                return formatTime(this.length);
+            },
+            songProgress: function() {
+                return formatTime(this.progress);
             }
         }
     });
@@ -52,7 +72,8 @@ window.onload = function() {
             songListing: [],
             thumbnails: [],
             queue: [],
-            nowPlaying: null,
+            nowPlaying: 0,
+            progress: 25,
             code: null
         }
     });
@@ -112,10 +133,7 @@ window.onload = function() {
                 setTimeout(() => {
                     howl.seek(timestamp);
                     var songProgress = howl.seek();
-                    var songMinutes = Math.floor(songProgress / 60);
-                    var songSeconds = Math.floor(songProgress % 60).toString();
-                    if(songSeconds.length <= 1) songSeconds = "0" + songSeconds;
-                    var songLength = songMinutes + ":" + songSeconds;
+                    var songTime = formatTime(songProgress);
                     // set displayed time
                 }, time);
                 break;

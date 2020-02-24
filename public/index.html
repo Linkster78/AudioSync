@@ -27,9 +27,14 @@
                 <h1>Now Playing</h1>
                 <song-metadata class="song-metadata"
                     v-bind:id="nowPlaying"
-                    v-bind:songlisting="songListing"
+                    v-bind:song_listing="songListing"
                     v-bind:thumbnails="thumbnails">
                 </song-metadata>
+                <song-progress class="song-progress"
+                    v-bind:id="nowPlaying"
+                    v-bind:progress="progress"
+                    v-bind:song_listing="songListing">
+                </song-progress>
             </section>
 
             <section class="session"></section>
