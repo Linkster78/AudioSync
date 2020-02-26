@@ -18,8 +18,8 @@
                     <song-option class="song-option"
                         v-for="(song, index) in songListing"
                         v-bind:title="song.title"
-                        v-bind:queue="queue"
-                        v-bind:key="index">
+                        v-bind:key="index"
+                        v-on:queue="queueSong">
                     </song-option>
                 </div>
             </section>
@@ -27,18 +27,20 @@
             <section class="player">
                 <h1>Now Playing</h1>
                 <song-metadata class="song-metadata"
-                    v-bind:id="nowPlaying"
-                    v-bind:song_listing="songListing"
-                    v-bind:thumbnails="thumbnails">
+                    v-bind:thumbnail="thumbnails[currentSong.thumbnail]"
+                    v-bind:title="currentSong.title"
+                    v-bind:artist="currentSong.artist"
+                    v-bind:album="currentSong.album"
+                    v-bind:year="currentSong.year"
+                    v-bind:length="currentSong.duration">
                 </song-metadata>
                 <song-progress class="song-progress"
-                    v-bind:id="nowPlaying"
                     v-bind:progress="progress"
-                    v-bind:song_listing="songListing">
+                    v-bind:length="currentSong.duration">
                 </song-progress>
                 <h2>Next Up</h2>
                 <div class="song-queue">
-                    <table class="song-queue">
+                    <table>
                         <tr>
                             <th style="width:10%">Order</th>
                             <th style="width:40%">Title</th>
@@ -46,16 +48,23 @@
                             <th style="width:15%">Length</th>
                         </tr>
                         <tr is="queue-item"
-                            v-for="(song, index) in queue"
-                            v-bind:id="song"
-                            v-bind:queue="queue"
-                            v-bind:song_listing="songListing"
-                            v-bind:key="index"></tr>
+                            v-for="(song, index) in currentQueue"
+                            v-bind:title="song.title"
+                            v-bind:artist="song.artist"
+                            v-bind:length="song.duration"
+                            v-bind:key="index"
+                            v-on:unqueue="unqueueSong"></tr>
                     </table>
                 </div>
             </section>
 
-            <section class="session"></section>
+            <section class="session">
+                <h1>Session</h1>
+                <session-indicator class="session-indicator"
+                    v-bind:code="code"
+                    v-on:refresh="joinSession">
+                </session-indicator>
+            </section>
         </main>
     </body>
 </html>

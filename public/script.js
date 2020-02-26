@@ -1,100 +1,75 @@
 function formatTime(time) {
+    if(isNaN(time)) return '0:00';
     var minutes = Math.floor(time / 60);
     var seconds = Math.floor(time % 60).toString();
-    if(seconds.length <= 1) seconds = "0" + seconds;
-    return minutes + ":" + seconds;
+    if(seconds.length <= 1) seconds = '0' + seconds;
+    return minutes + ':' + seconds;
 }
 
 window.onload = function() {
     var clientWorker;
 
     Vue.component('song-option', {
-        props: ['title', 'queue'],
-        template: `<li v-on:click="queueSong"><span>[+]</span> {{title}}</li>`,
-        methods: {
-            queueSong: function() {
-                this.queue.push(this.$vnode.key);
-            }
-        }
+        props: ['title'],
+        template: `<li v-on:click="$emit('queue', $vnode.key)"><span>[+]</span> {{title}}</li>`
     });
 
     Vue.component('song-metadata', {
-        props: ['id', 'song_listing', 'thumbnails'],
+        props: ['thumbnail', 'title', 'artist', 'album', 'year', 'length'],
         template: `<div>
-                        <img v-bind:src="thumbnail">
+                        <img v-bind:src="thumbnail || 'noimage.png'">
                         <div>
-                            <h2><span>Title:</span> {{title}}</h2>
-                            <h2><span>Artist:</span> {{artist}}</h2>
-                            <h2><span>Album:</span> {{album}}</h2>
-                            <h2><span>Release Year:</span> {{year}}</h2>
-                            <h2><span>Song Length:</span> {{songLength}}</h2>
+                            <h2><span>Title:</span> {{title || 'NA'}}</h2>
+                            <h2><span>Artist:</span> {{artist || 'NA'}}</h2>
+                            <h2><span>Album:</span> {{album || 'NA'}}</h2>
+                            <h2><span>Release Year:</span> {{year || 'NA'}}</h2>
+                            <h2><span>Song Length:</span> {{formatTime(length) || 'NA'}}</h2>
                         </div>
                     </div>`,
-        computed: {
-            thumbnail: function() {
-                return this.id == null || this.thumbnails.length == 0 || this.song_listing.length == 0 ? 'noimage.png' : this.thumbnails[this.song_listing[this.id].thumbnail];
-            },
-            title: function() {
-                return this.id == null || this.song_listing.length == 0 ? 'NA' : this.song_listing[this.id].title;
-            },
-            artist: function() {
-                return this.id == null || this.song_listing.length == 0 ? 'NA' : this.song_listing[this.id].artist;
-            },
-            album: function() {
-                return this.id == null || this.song_listing.length == 0 ? 'NA' : this.song_listing[this.id].album;
-            },
-            year: function() {
-                return this.id == null || this.song_listing.length == 0 ? 'NA' : this.song_listing[this.id].year;
-            },
-            songLength: function() {
-                if(this.id == null || this.song_listing.length == 0) return 'NA';
-                return formatTime(this.song_listing[this.id].duration);
-            }
-        }
+        methods: { formatTime }
     });
 
     Vue.component('song-progress', {
-        props: ['id', 'progress', 'song_listing'],
+        props: ['progress', 'length'],
         template: `<div>
                         <p>{{songProgress}}<span>{{songLength}}</span></p>
-                        <input type="range" min="0" step="0.1" v-bind:value="progress" v-bind:max="length">
+                        <input type="range" min="0" step="0.1" v-bind:value="progress" v-bind:max="length || 0">
                     </div>`,
         computed: {
-            length: function() {
-                return this.id == null || this.song_listing.length == 0 ? 0 : this.song_listing[this.id].duration;
+            songProgress: function() {
+                return formatTime(this.progress);
             },
             songLength: function() {
                 return formatTime(this.length);
-            },
-            songProgress: function() {
-                return formatTime(this.progress);
             }
         }
     });
 
     Vue.component('queue-item', {
-        props: ['id', 'queue', 'song_listing'],
+        props: ['title', 'artist', 'length'],
         template: `<tr>
                         <td>{{this.$vnode.key + 1}}.</td>
-                        <td v-on:click="unqueue"><span>{{title}}</span></td>
+                        <td v-on:click="$emit('unqueue', $vnode.key)"><span>{{title}}</span></td>
                         <td>{{artist}}</td>
-                        <td>{{length}}</td>
+                        <td>{{formatTime(length)}}</td>
                     </tr>`,
-        methods: {
-            unqueue: function() {
-                this.queue.splice(this.$vnode.key, 1);
+        methods: { formatTime }
+    });
+
+    Vue.component('session-indicator', {
+        props: ['code'],
+        template: `<div>
+                        <h2>Session Code: {{code}}</h2>
+                        <input placeholder="Session Code" v-model="inputCode"><button v-on:click="$emit('refresh', inputCode)">Join Session</button>
+                    </div>`,
+        data: function() {
+            return {
+                inputCode: null
             }
         },
-        computed: {
-            title: function() {
-                return this.song_listing.length == 0 ? 'NA' : this.song_listing[this.id].title;
-            },
-            artist: function() {
-                return this.song_listing.length == 0 ? 'NA' : this.song_listing[this.id].artist;
-            },
-            length: function() {
-                if(this.song_listing.length == 0) return 'NA';
-                return formatTime(this.song_listing[this.id].duration);
+        watch: {
+            code: function(newCode) {
+                this.inputCode = ""; 
             }
         }
     });
@@ -108,6 +83,27 @@ window.onload = function() {
             nowPlaying: null,
             progress: 0,
             code: null
+        },
+        computed: {
+            currentSong: function() {
+                return this.songListing[this.nowPlaying] || {};
+            },
+            currentQueue: function() {
+                return this.queue.map((id) => this.songListing[id]);
+            }
+        },
+        methods: {
+            queueSong: function(id) {
+                this.queue.push(id);
+            },
+            unqueueSong: function(index) {
+                this.queue.splice(index, 1);
+            },
+            joinSession: function(code) {
+                if(code.length == 5) {
+                    this.code = code;
+                }
+            }
         }
     });
 

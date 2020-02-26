@@ -41,6 +41,23 @@ li {
     list-style-type: none;
 }
 
+input {
+    background-color: #222;
+    border: #666 solid 2px;
+    color: #FFF;
+    padding: 4px;
+    margin-right: 5px;
+    font-family: monospace;
+}
+
+button {
+    padding: 4px;
+    background-color: #111;
+    color: #FFF;
+    border: #444 solid 2px;
+    font-family: monospace;
+}
+
 /* General Styling */
 
 .view {
@@ -164,6 +181,7 @@ li {
 }
 
 .song-queue table {
+    width: 100%;
     text-align: left;
     table-layout: fixed;
 }
@@ -188,4 +206,18 @@ li {
 .session {
     order: 2;
     flex: 3 0 0;
+}
+
+.session h1 {
+    order: 0;
+    flex: auto 0 0;
+}
+
+.session-indicator {
+    order: 1;
+    flex: auto 0 0;
+}
+
+.session-indicator h2 {
+    margin-bottom: 10px;
 }
