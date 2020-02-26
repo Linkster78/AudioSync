@@ -29,12 +29,17 @@ var loadSongs = function(musicFolder) {
                     year: metadata.common.year,
                     thumbnail: thumbnailMd5
                 });
+
             })
             .catch(err => {
                 console.error(`Error while loading "${file}": ${err.stack}`);
             });
         })).then(() => {
-            songStore.sort((a, b) => a.title > b.title ? 1 : -1);
+            var index = 0;
+            songStore.sort((a, b) => a.title > b.title ? 1 : -1).forEach((song) => {
+                song.id = index;
+                index++;
+            });
             console.log(`Loaded ${songStore.length} Songs.`);
         });
     });

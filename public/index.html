@@ -22,6 +22,7 @@
                         v-if="categories.length == 0"
                         v-for="(song, index) in songListing"
                         v-bind:title="song.title"
+                        v-bind:id="song.id"
                         v-bind:key="index"
                         v-on:queue="queueSong">
                     </song-option>

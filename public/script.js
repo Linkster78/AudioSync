@@ -10,8 +10,8 @@ window.onload = function() {
     var clientWorker;
 
     Vue.component('song-option', {
-        props: ['title'],
-        template: `<li v-on:click="$emit('queue', $vnode.key)"><span>[+]</span> {{title}}</li>`
+        props: ['title', 'id'],
+        template: `<li v-on:click="$emit('queue', id)"><span>[+]</span> {{title}}</li>`
     });
 
     Vue.component('song-category', {
@@ -22,7 +22,9 @@ window.onload = function() {
                             <song-option class="song-option"
                                 v-for="(song, index) in songs"
                                 v-bind:title="song.title"
-                                v-bind:key="index">
+                                v-bind:id="song.id"
+                                v-bind:key="index"
+                                v-on:queue="$emit('queue', $event)">
                             </song-option>
                         </div>
                     </div>`,
@@ -190,6 +192,7 @@ window.onload = function() {
             case 'listing':
                 vm.songListing = e.data[1];
                 vm.thumbnails = e.data[2];
+                console.log(vm.songListing);
                 break;
 
             case 'newSession':
