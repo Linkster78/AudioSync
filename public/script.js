@@ -179,7 +179,7 @@ window.onload = function() {
                         value: value,
                         songs: this.songListing.filter((song) => song[newFilter] == value)
                     };
-                });
+                }).sort();
             }
         }
     });

@@ -14,10 +14,10 @@
         <main id="app" class="view">
             <section class="song-list">
                 <h1>Available Songs</h1>
-                <div>
-                    <song-filter class="song-filter"
-                        v-on:refresh="changeFilter">
-                    </song-filter>
+                <song-filter class="song-filter"
+                    v-on:refresh="changeFilter">
+                </song-filter>
+                <div class="list">
                     <song-option class="song-option"
                         v-if="categories.length == 0"
                         v-for="(song, index) in songListing"

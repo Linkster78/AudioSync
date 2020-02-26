@@ -29,7 +29,6 @@ var loadSongs = function(musicFolder) {
                     year: metadata.common.year,
                     thumbnail: thumbnailMd5
                 });
-
             })
             .catch(err => {
                 console.error(`Error while loading "${file}": ${err.stack}`);

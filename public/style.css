@@ -10,6 +10,7 @@ html * {
     font-family: monospace;
     white-space: nowrap;
     overflow-x: hidden;
+    user-select: none;
 }
 
 body {
@@ -98,8 +99,13 @@ select {
     flex: auto 0 0;
 }
 
-.song-list > div {
+.song-list > .song-filter {
     order: 1;
+    flex: auto 0 0;
+}
+
+.song-list > .list {
+    order: 2;
     flex: 1 0 0;
     overflow-y: scroll;
 }
@@ -110,7 +116,7 @@ select {
     font-size: 1rem;
 }
 
-.song-category:hover > li {
+.song-category > li:hover {
     color: white;
 }
 
@@ -118,7 +124,7 @@ select {
     color: darkred;
 }
 
-.song-category:hover > li > span {
+.song-category > li:hover > span {
     color: red;
 }
 
