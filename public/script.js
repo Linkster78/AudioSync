@@ -9,8 +9,13 @@ window.onload = function() {
     var clientWorker;
 
     Vue.component('song-option', {
-        props: ['title'],
-        template: `<li><span>[+]</span> {{title}}</li>`
+        props: ['title', 'queue'],
+        template: `<li v-on:click="queueSong"><span>[+]</span> {{title}}</li>`,
+        methods: {
+            queueSong: function() {
+                this.queue.push(this.$vnode.key);
+            }
+        }
     });
 
     Vue.component('song-metadata', {
@@ -27,22 +32,22 @@ window.onload = function() {
                     </div>`,
         computed: {
             thumbnail: function() {
-                return this.id == null || this.thumbnails.length == 0 || this.song_listing == 0 ? 'noimage.png' : this.thumbnails[this.song_listing[this.id].thumbnail];
+                return this.id == null || this.thumbnails.length == 0 || this.song_listing.length == 0 ? 'noimage.png' : this.thumbnails[this.song_listing[this.id].thumbnail];
             },
             title: function() {
-                return this.id == null || this.song_listing == 0 || this.song_listing == 0 ? 'NA' : this.song_listing[this.id].title;
+                return this.id == null || this.song_listing.length == 0 ? 'NA' : this.song_listing[this.id].title;
             },
             artist: function() {
-                return this.id == null || this.song_listing == 0 ? 'NA' : this.song_listing[this.id].artist;
+                return this.id == null || this.song_listing.length == 0 ? 'NA' : this.song_listing[this.id].artist;
             },
             album: function() {
-                return this.id == null || this.song_listing == 0 ? 'NA' : this.song_listing[this.id].album;
+                return this.id == null || this.song_listing.length == 0 ? 'NA' : this.song_listing[this.id].album;
             },
             year: function() {
-                return this.id == null || this.song_listing == 0 ? 'NA' : this.song_listing[this.id].year;
+                return this.id == null || this.song_listing.length == 0 ? 'NA' : this.song_listing[this.id].year;
             },
             songLength: function() {
-                if(this.id == null || this.song_listing == 0) return 'NA';
+                if(this.id == null || this.song_listing.length == 0) return 'NA';
                 return formatTime(this.song_listing[this.id].duration);
             }
         }
@@ -51,11 +56,12 @@ window.onload = function() {
     Vue.component('song-progress', {
         props: ['id', 'progress', 'song_listing'],
         template: `<div>
+                        <p>{{songProgress}}<span>{{songLength}}</span></p>
                         <input type="range" min="0" step="0.1" v-bind:value="progress" v-bind:max="length">
                     </div>`,
         computed: {
             length: function() {
-                return this.id == null || this.song_listing == 0 ? 0 : this.song_listing[this.id].duration;
+                return this.id == null || this.song_listing.length == 0 ? 0 : this.song_listing[this.id].duration;
             },
             songLength: function() {
                 return formatTime(this.length);
@@ -66,14 +72,41 @@ window.onload = function() {
         }
     });
 
+    Vue.component('queue-item', {
+        props: ['id', 'queue', 'song_listing'],
+        template: `<tr>
+                        <td>{{this.$vnode.key + 1}}.</td>
+                        <td v-on:click="unqueue"><span>{{title}}</span></td>
+                        <td>{{artist}}</td>
+                        <td>{{length}}</td>
+                    </tr>`,
+        methods: {
+            unqueue: function() {
+                this.queue.splice(this.$vnode.key, 1);
+            }
+        },
+        computed: {
+            title: function() {
+                return this.song_listing.length == 0 ? 'NA' : this.song_listing[this.id].title;
+            },
+            artist: function() {
+                return this.song_listing.length == 0 ? 'NA' : this.song_listing[this.id].artist;
+            },
+            length: function() {
+                if(this.song_listing.length == 0) return 'NA';
+                return formatTime(this.song_listing[this.id].duration);
+            }
+        }
+    });
+
     vm = new Vue({
         el: '#app',
         data: {
             songListing: [],
             thumbnails: [],
             queue: [],
-            nowPlaying: 0,
-            progress: 25,
+            nowPlaying: null,
+            progress: 0,
             code: null
         }
     });

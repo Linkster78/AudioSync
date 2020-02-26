@@ -18,6 +18,7 @@
                     <song-option class="song-option"
                         v-for="(song, index) in songListing"
                         v-bind:title="song.title"
+                        v-bind:queue="queue"
                         v-bind:key="index">
                     </song-option>
                 </div>
@@ -35,6 +36,23 @@
                     v-bind:progress="progress"
                     v-bind:song_listing="songListing">
                 </song-progress>
+                <h2>Next Up</h2>
+                <div class="song-queue">
+                    <table class="song-queue">
+                        <tr>
+                            <th style="width:10%">Order</th>
+                            <th style="width:40%">Title</th>
+                            <th style="width:35%">Artist</th>
+                            <th style="width:15%">Length</th>
+                        </tr>
+                        <tr is="queue-item"
+                            v-for="(song, index) in queue"
+                            v-bind:id="song"
+                            v-bind:queue="queue"
+                            v-bind:song_listing="songListing"
+                            v-bind:key="index"></tr>
+                    </table>
+                </div>
             </section>
 
             <section class="session"></section>

@@ -20,7 +20,9 @@ body {
     scrollbar-color: transparent transparent;
 }
 
-::-webkit-scrollbar { display: none;}
+::-webkit-scrollbar { 
+    display: none;
+}
 
 /* Global Element Styling */
 
@@ -68,6 +70,7 @@ li {
 .song-list > div {
     order: 1;
     flex: 1 0 0;
+    overflow-y: scroll;
 }
 
 .song-option {
@@ -132,7 +135,54 @@ li {
 .song-progress {
     order: 2;
     flex: auto 0 0;
-    margin-top: 25px;
+    margin: 25px 0;
+}
+
+.song-progress p { 
+    display: block; 
+}
+
+.song-progress span { 
+    float: right; 
+}
+
+.song-progress input {
+    width: 100%;
+}
+
+.player > h2 {
+    order: 3;
+    flex: auto 0 0;
+}
+
+.song-queue {
+    width: 100%;
+    order: 4;
+    flex: 1 0 0;
+    font-size: 1.1rem;
+    overflow-y: scroll;
+}
+
+.song-queue table {
+    text-align: left;
+    table-layout: fixed;
+}
+
+.song-queue th {
+    border-bottom: 1px solid white;
+}
+
+.song-queue td {
+    border-bottom: 1px solid #666;
+    border-right: 1rem solid transparent;
+    padding: 5px 0;
+    overflow: hidden;
+}
+
+.song-queue span:hover {
+    text-decoration: line-through;
+    cursor: pointer;
+    color: #AAA;
 }
 
 .session {
