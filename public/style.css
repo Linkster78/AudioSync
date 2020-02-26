@@ -50,6 +50,10 @@ input {
     font-family: monospace;
 }
 
+input:hover {
+    background-color: #666;
+}
+
 button {
     padding: 4px;
     background-color: #111;
@@ -155,12 +159,52 @@ button {
     margin: 25px 0;
 }
 
-.song-progress p { 
-    display: block; 
+.controls { 
+    width: 100%;
+    vertical-align: bottom;
 }
 
-.song-progress span { 
-    float: right; 
+.controls p {
+    display: inline-block;
+    font-size: 1.05rem;
+    margin: 0;
+}
+
+.right {
+    float: right;
+}
+
+.play-button, .pause-button, .skip-button {
+    color: gray;
+}
+
+.play-button:hover, .pause-button:hover, .skip-button:hover {
+    color: white;
+    cursor: pointer;
+}
+
+.skip-button > span {
+    color: purple;
+}
+
+.skip-button:hover > span {
+    color: magenta;
+}
+
+.pause-button > span {
+    color: goldenrod;
+}
+
+.pause-button:hover > span {
+    color: gold;
+}
+
+.play-button > span {
+    color: darkgreen;
+}
+
+.play-button:hover > span {
+    color: green;
 }
 
 .song-progress input {

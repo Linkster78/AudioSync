@@ -30,9 +30,20 @@ window.onload = function() {
     });
 
     Vue.component('song-progress', {
-        props: ['progress', 'length'],
+        props: ['progress', 'length', 'paused'],
         template: `<div>
-                        <p>{{songProgress}}<span>{{songLength}}</span></p>
+                        <div class="controls">
+                            <p>{{songProgress}}</p>
+                            <p class="skip-button"
+                                v-on:click="$emit('skip')">
+                                <span>[>>]</span> Skip
+                            </p>
+                            <p v-bind:class="paused ? 'play-button' : 'pause-button'"
+                                v-on:click="paused ? $emit('play') : $emit('pause')">
+                                <span>[{{paused ? '&#9658;' : '&#10073;&#10073;'}}]</span> {{paused ? 'Play' : 'Pause'}}
+                            </p>
+                            <p class="right">{{songLength}}</p>
+                        </div>
                         <input type="range" min="0" step="0.1" v-bind:value="progress" v-bind:max="length || 0">
                     </div>`,
         computed: {
@@ -81,6 +92,7 @@ window.onload = function() {
             thumbnails: [],
             queue: [],
             nowPlaying: null,
+            paused: false,
             progress: 0,
             code: null
         },
@@ -95,14 +107,28 @@ window.onload = function() {
         methods: {
             queueSong: function(id) {
                 this.queue.push(id);
+                /* QUEUE SONG */
             },
             unqueueSong: function(index) {
                 this.queue.splice(index, 1);
+                /* UNQUEUE SONG */
             },
             joinSession: function(code) {
                 if(code.length == 5) {
                     this.code = code;
+                    /* JOIN SESSION */
                 }
+            },
+            skipSong: function() {
+                /* SKIP SONG */
+            },
+            playSong: function() {
+                this.paused = false;
+                /* PLAY SONG */
+            },
+            pauseSong: function() {
+                this.paused = true;
+                /* PAUSE SONG */
             }
         }
     });

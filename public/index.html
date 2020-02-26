@@ -36,7 +36,11 @@
                 </song-metadata>
                 <song-progress class="song-progress"
                     v-bind:progress="progress"
-                    v-bind:length="currentSong.duration">
+                    v-bind:length="currentSong.duration"
+                    v-bind:paused="paused"
+                    v-on:skip="skipSong"
+                    v-on:play="playSong"
+                    v-on:pause="pauseSong">
                 </song-progress>
                 <h2>Next Up</h2>
                 <div class="song-queue">
