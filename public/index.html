@@ -15,12 +15,24 @@
             <section class="song-list">
                 <h1>Available Songs</h1>
                 <div>
+                    <song-filter class="song-filter"
+                        v-on:refresh="changeFilter">
+                    </song-filter>
                     <song-option class="song-option"
+                        v-if="categories.length == 0"
                         v-for="(song, index) in songListing"
                         v-bind:title="song.title"
                         v-bind:key="index"
                         v-on:queue="queueSong">
                     </song-option>
+                    <song-category class="song-category"
+                        v-if="categories.length > 0"
+                        v-for="(category, index) in categories"
+                        v-bind:value="category.value"
+                        v-bind:songs="category.songs"
+                        v-bind:key="index"
+                        v-on:queue="queueSong">
+                    </song-category>
                 </div>
             </section>
 
