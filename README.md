@@ -7,5 +7,4 @@ This is a project of mine designed to play audio files to multiple users connect
 ## TODO
 * Status Indicator (Loading)
 * Song Request System
-* Reduce audio start delay
-* Switch to Vue.js for performance
+* Audio Visualizer
