@@ -2,8 +2,9 @@
 <html>
     <head>
         <title>AudioSync</title>
-
-        <script src="https://vuejs.org/js/vue.js"></script>
+        
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.10/pako_inflate.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.3/howler.core.min.js"></script>
 
         <script src="./script.js"></script>
@@ -11,76 +12,74 @@
     </head>
 
     <body>
-        <main id="app" class="view">
-            <section class="song-list">
-                <h1>Available Songs</h1>
-                <div>
-                    <song-filter class="song-filter"
-                        v-on:refresh="changeFilter">
-                    </song-filter>
-                    <song-option class="song-option"
-                        v-if="categories.length == 0"
-                        v-for="(song, index) in songListing"
-                        v-bind:title="song.title"
-                        v-bind:key="index"
-                        v-on:queue="queueSong">
-                    </song-option>
-                    <song-category class="song-category"
-                        v-if="categories.length > 0"
-                        v-for="(category, index) in categories"
-                        v-bind:value="category.value"
-                        v-bind:songs="category.songs"
-                        v-bind:key="index"
-                        v-on:queue="queueSong">
-                    </song-category>
-                </div>
-            </section>
+        <div class="song-information" id="songPopup">
+            <img id="songThumbnail" src="">
+            <div class="song-metadata">
+                <h3 id="songTitle"></h3><br>
+                <h3 id="songArtist"></h3><br>
+                <h3 id="songLength"></h3><br>
+                <h3 id="songAlbum"></h3><br>
+                <h3 id="songYear"></h3>
+            </div>
+        </div>
 
-            <section class="player">
-                <h1>Now Playing</h1>
-                <song-metadata class="song-metadata"
-                    v-bind:thumbnail="thumbnails[currentSong.thumbnail]"
-                    v-bind:title="currentSong.title"
-                    v-bind:artist="currentSong.artist"
-                    v-bind:album="currentSong.album"
-                    v-bind:year="currentSong.year"
-                    v-bind:length="currentSong.duration">
-                </song-metadata>
-                <song-progress class="song-progress"
-                    v-bind:progress="progress"
-                    v-bind:length="currentSong.duration"
-                    v-bind:paused="paused"
-                    v-on:skip="skipSong"
-                    v-on:play="playSong"
-                    v-on:pause="pauseSong">
-                </song-progress>
+        <div class="browser">
+            <h1>Available Songs</h1>
+            Filter By: <select class="select" id="selectFilter">
+                <option value="none">None</option>
+                <option value="artist">Artist</option>
+                <option value="album">Album</option>
+                <option value="year">Year</option>
+            </select>
+            <div id="songListing"></div>
+        </div>
+
+        <div class="now-playing">
+            <h1>Now Playing</h1>
+            <div id="nowPlaying" class="song-information">
+                <img id="npThumbnail" src="">
+                <div class="song-metadata">
+                    <h3 id="npTitle"></h3><br>
+                    <h3 id="npArtist"></h3><br>
+                    <h3 id="npLength"></h3><br>
+                    <h3 id="npAlbum"></h3><br>
+                    <h3 id="npYear"></h3>
+                </div>
+                <div class="song-controls">
+                    <p id="npCurrentTime">0:00</p>
+                    <a href="#" class="skip-button" id="skipButton"><strong>[>>]</strong> Skip</a>
+                    <a href="#" class="pause-button" id="toggleButton"><strong>[&#10073;&#10073;]</strong> Pause</a>
+                    <p id="npEndTime">0:00</p>
+                    <div id="npProgressBarBackdrop" class="barBackdrop">
+                        <div id="npProgressBar" class="barData"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="queue-parent">
                 <h2>Next Up</h2>
-                <div class="song-queue">
-                    <table>
+                <div class="volume-div">
+                    <p>Volume </p>
+                    <div id="volBarBackdrop" class="barBackdrop">
+                        <div id="volBar" class="barData"></div>
+                    </div>
+                </div>
+                <div class="queue-wrapper">
+                    <table id="queue">
                         <tr>
                             <th style="width:10%">Order</th>
-                            <th style="width:40%">Title</th>
-                            <th style="width:35%">Artist</th>
-                            <th style="width:15%">Length</th>
+                            <th style="width:41%">Title</th>
+                            <th style="width:37%">Artist</th>
+                            <th style="width:12%">Length</th>
                         </tr>
-                        <tr is="queue-item"
-                            v-for="(song, index) in currentQueue"
-                            v-bind:title="song.title"
-                            v-bind:artist="song.artist"
-                            v-bind:length="song.duration"
-                            v-bind:key="index"
-                            v-on:unqueue="unqueueSong"></tr>
                     </table>
                 </div>
-            </section>
+            </div>
+        </div>
 
-            <section class="session">
-                <h1>Session</h1>
-                <session-indicator class="session-indicator"
-                    v-bind:code="code"
-                    v-on:refresh="joinSession">
-                </session-indicator>
-            </section>
-        </main>
+        <div class="session">
+            <h1>Session</h1>
+            <h2 id="currentSession">Session Code:</h2>
+            <input class="input" id="inputCode" placeholder="Session Code"><button class="button" id="buttonConnect">Join Session</button>
+        </div>
     </body>
 </html>

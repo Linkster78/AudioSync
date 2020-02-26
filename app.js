@@ -1,6 +1,6 @@
 const PORT = 8721;
 const WS_PORT = 8722;
-const musicFolder = "C:/Users/Julien/Google Drive/Music/HQ/";
+const musicFolder = "D:/Google Drive/Music/HQ/";
 
 const express = require('express');
 const WebSocket = require('ws');
