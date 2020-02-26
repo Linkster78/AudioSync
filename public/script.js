@@ -14,6 +14,25 @@ window.onload = function() {
         template: `<li v-on:click="$emit('queue', $vnode.key)"><span>[+]</span> {{title}}</li>`
     });
 
+    Vue.component('song-category', {
+        props: ['value', 'songs'],
+        template: `<div>
+                        <li v-on:click="expanded = !expanded"><span>{{expanded ? '&#9660;' : '&#9654;'}}</span> {{value}}</li>
+                        <div v-if="expanded">
+                            <song-option class="song-option"
+                                v-for="(song, index) in songs"
+                                v-bind:title="song.title"
+                                v-bind:key="index">
+                            </song-option>
+                        </div>
+                    </div>`,
+        data: function() {
+            return {
+                expanded: false
+            };
+        }
+    });
+
     Vue.component('song-metadata', {
         props: ['thumbnail', 'title', 'artist', 'album', 'year', 'length'],
         template: `<div>
@@ -85,12 +104,30 @@ window.onload = function() {
         }
     });
 
+    Vue.component('song-filter', {
+        template: `<div>
+                        <h2>Filter By: </h2>
+                        <select v-model="filter" v-on:change="$emit('refresh', filter)">
+                            <option value="none">None</option>
+                            <option value="artist">Artist</option>
+                            <option value="album">Album</option>
+                            <option value="year">Year</option>
+                        </select>
+                    </div>`,
+        data: function() {
+            return {
+                filter: 'none'
+            };
+        }
+    });
+
     vm = new Vue({
         el: '#app',
         data: {
             songListing: [],
             thumbnails: [],
             queue: [],
+            categories: [],
             nowPlaying: null,
             paused: false,
             progress: 0,
@@ -129,6 +166,18 @@ window.onload = function() {
             pauseSong: function() {
                 this.paused = true;
                 /* PAUSE SONG */
+            },
+            changeFilter: function(newFilter) {
+                if(newFilter == 'none') { 
+                    this.categories = [];
+                    return;
+                }
+                this.categories = Array.from(new Set(this.songListing.map((song) => song[newFilter]))).map((value) => {
+                    return {
+                        value: value,
+                        songs: this.songListing.filter((song) => song[newFilter] == value)
+                    };
+                });
             }
         }
     });

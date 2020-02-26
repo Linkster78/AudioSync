@@ -28,13 +28,13 @@ body {
 
 h1 {
     margin: 0 0 15px 0;
-    font-size: 3.3rem;
+    font-size: 3.2vw;
     text-decoration: underline;
 }
 
 h2 {
     margin: 0;
-    font-size: 1.4rem;
+    font-size: 1.6vw;
 }
 
 li { 
@@ -60,6 +60,16 @@ button {
     color: #FFF;
     border: #444 solid 2px;
     font-family: monospace;
+}
+
+select {
+    width: 50%;
+    padding: 5px;
+    border-radius: 5px;
+    border: #666 solid 2px;
+    box-sizing: border-box;
+    color: #FFF;
+    background-color: #333;
 }
 
 /* General Styling */
@@ -94,6 +104,24 @@ button {
     overflow-y: scroll;
 }
 
+.song-category > li {
+    color: gray;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.song-category:hover > li {
+    color: white;
+}
+
+.song-category > li > span {
+    color: darkred;
+}
+
+.song-category:hover > li > span {
+    color: red;
+}
+
 .song-option {
     font-size: 1rem;
     transition-property: font-size;
@@ -114,6 +142,14 @@ button {
 
 .song-option:hover > span {
     color: greenyellow;
+}
+
+.song-filter {
+    margin-bottom: 5px;
+}
+
+.song-filter h2 {
+    display: inline;
 }
 
 .player {
@@ -232,12 +268,15 @@ button {
 
 .song-queue th {
     border-bottom: 1px solid white;
+    font-size: 0.95rem;
 }
 
 .song-queue td {
+    width: 100%;
     border-bottom: 1px solid #666;
     border-right: 1rem solid transparent;
     padding: 5px 0;
+    font-size: 1vw;
     overflow: hidden;
 }
 
