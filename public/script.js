@@ -169,7 +169,7 @@ window.onload = function() {
         el: '#app',
         data: {
             songListing: [],
-            thumbnails: [],
+            thumbnails: {},
             queue: [],
             categories: [],
             nowPlaying: null,
@@ -266,7 +266,12 @@ window.onload = function() {
         switch(command) {
             case 'listing':
                 vm.songListing = e.data[1];
-                vm.thumbnails = e.data[2];
+                break;
+
+            case 'thumbnailData':
+                var hash = e.data[1];
+                var data = e.data[2];
+                vm.thumbnails[hash] = data;
                 break;
 
             case 'newSession':
@@ -280,6 +285,7 @@ window.onload = function() {
                         var source = encodeURIComponent(vm.songListing[id].file);
                         preloadQueue.loadFile({id:id, src:source});
                         vm.songListing[id].preloaded = false;
+                        clientWorker.postMessage(['thumbnailRequest', vm.songListing[id].thumbnail]);
                     }
                 });
                 break;

@@ -325,3 +325,10 @@ select {
     user-select: none;
     display: inline-block;
 }
+
+.footer {
+    position: absolute;
+    right: 14px;
+    bottom: 8px;
+    text-align: right;
+}

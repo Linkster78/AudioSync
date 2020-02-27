@@ -31,8 +31,16 @@ var configureWebSocket = function(wss) {
                 case 'listing':
                     ws.send(JSON.stringify({
                         packet: 'listing',
-                        listing: audio.songStore,
-                        thumbnails: audio.thumbnailStore
+                        listing: audio.songStore
+                    }));
+                    break;
+
+                case 'thumbnailRequest':
+                    var hash = json['hash'];   
+                    ws.send(JSON.stringify({
+                        packet: 'thumbnailData',
+                        hash: hash,
+                        data: audio.thumbnailStore[hash]
                     }));
                     break;
 
