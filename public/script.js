@@ -217,7 +217,7 @@ window.onload = function() {
                         value: value,
                         songs: this.songListing.filter((song) => song[newFilter] == value)
                     };
-                }).sort();
+                }).sort((a, b) => a.value - b.value);
             },
             changeVolume: function(volume) {
                 this.volume = volume;
