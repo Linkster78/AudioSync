@@ -28,20 +28,13 @@ webSocket.onmessage = (event) => {
             var songProgress = json['songProgress'];
             var paused = json['paused'];
             this.postMessage(['newSession', code]);
-            if(sessionQueue !== undefined && nowPlaying !== undefined) {
-                this.postMessage(['updateQueue', sessionQueue]);
-                this.postMessage(['playAt', nowPlaying, songProgress, paused]);
-            }
+            if(sessionQueue != null) this.postMessage(['updateQueue', sessionQueue]);
+            if(nowPlaying != null) this.postMessage(['playAt', nowPlaying, songProgress, paused]);
             break;
 
         case 'updateQueue':
             var newQueue = json['queue'];
             this.postMessage(['updateQueue', newQueue]);
-            break;
-
-        case 'load':
-            var songId = json['song'];
-            this.postMessage(['load', songId]);
             break;
 
         case 'pause':
@@ -53,12 +46,6 @@ webSocket.onmessage = (event) => {
             var time = json['time'];
             var timestamp = json['timestamp'];
             this.postMessage(['resume', time, timestamp]);
-            break;
-
-        case 'setTime':
-            var time = json['time'];
-            var timestamp = json['timestamp'];
-            this.postMessage(['setTime', time, timestamp]);
             break;
 
         case 'play':
@@ -117,14 +104,6 @@ onmessage = (e) => {
             }));
             break;
 
-        case 'setTime':
-            var time = e.data[1];
-            webSocket.send(JSON.stringify({
-                packet: 'setTime',
-                time: time
-            }));
-            break;
-
         case 'skip':
             webSocket.send(JSON.stringify({
                 packet: 'skip'
@@ -137,9 +116,11 @@ onmessage = (e) => {
             }))
             break;
 
-        case 'ready':
+        case 'loaded':
+            var id = e.data[1];
             webSocket.send(JSON.stringify({
-                packet: 'ready'
+                packet: 'loaded',
+                id: id
             }));
             break;
     }

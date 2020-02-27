@@ -4,7 +4,8 @@
         <title>AudioSync</title>
 
         <script src="https://vuejs.org/js/vue.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.3/howler.core.min.js"></script>
+        <script src="https://code.createjs.com/1.0.0/preloadjs.min.js"></script>
+        <script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
 
         <script src="./script.js"></script>
         <link rel="stylesheet" href="./style.css">
@@ -52,7 +53,7 @@
                     v-bind:length="currentSong.duration"
                     v-bind:paused="paused"
                     v-on:skip="skipSong"
-                    v-on:play="playSong"
+                    v-on:resume="resumeSong"
                     v-on:pause="pauseSong">
                 </song-progress>
                 <h2>Next Up</h2>
@@ -69,6 +70,7 @@
                             v-bind:title="song.title"
                             v-bind:artist="song.artist"
                             v-bind:length="song.duration"
+                            v-bind:loaded="song.preloaded"
                             v-bind:key="index"
                             v-on:unqueue="unqueueSong"></tr>
                     </table>

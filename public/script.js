@@ -7,7 +7,7 @@ function formatTime(time) {
 }
 
 window.onload = function() {
-    var clientWorker;
+    var clientWorker, preloadQueue, audio, playState;
 
     Vue.component('song-option', {
         props: ['title', 'id'],
@@ -60,12 +60,12 @@ window.onload = function() {
                                 <span>[>>]</span> Skip
                             </p>
                             <p v-bind:class="paused ? 'play-button' : 'pause-button'"
-                                v-on:click="paused ? $emit('play') : $emit('pause')">
+                                v-on:click="paused ? $emit('resume') : $emit('pause')">
                                 <span>[{{paused ? '&#9658;' : '&#10073;&#10073;'}}]</span> {{paused ? 'Play' : 'Pause'}}
                             </p>
                             <p class="right">{{songLength}}</p>
                         </div>
-                        <input type="range" min="0" step="0.1" v-bind:value="progress" v-bind:max="length || 0">
+                        <input style="pointer-events:none" type="range" min="0" step="0.1" v-bind:value="progress" v-bind:max="length || 0">
                     </div>`,
         computed: {
             songProgress: function() {
@@ -78,10 +78,10 @@ window.onload = function() {
     });
 
     Vue.component('queue-item', {
-        props: ['title', 'artist', 'length'],
+        props: ['title', 'artist', 'length', 'loaded'],
         template: `<tr>
-                        <td>{{this.$vnode.key + 1}}.</td>
-                        <td v-on:click="$emit('unqueue', $vnode.key)"><span>{{title}}</span></td>
+                        <td v-bind:style="loaded ? 'color:white' : 'color:grey'">{{this.$vnode.key + 1}}.</td>
+                        <td><span v-on:click="$emit('unqueue', $vnode.key)">{{title}}</span></td>
                         <td>{{artist}}</td>
                         <td>{{formatTime(length)}}</td>
                     </tr>`,
@@ -123,7 +123,7 @@ window.onload = function() {
         }
     });
 
-    vm = new Vue({
+    var vm = new Vue({
         el: '#app',
         data: {
             songListing: [],
@@ -145,29 +145,24 @@ window.onload = function() {
         },
         methods: {
             queueSong: function(id) {
-                this.queue.push(id);
-                /* QUEUE SONG */
+                clientWorker.postMessage(['queue', id]);
             },
             unqueueSong: function(index) {
-                this.queue.splice(index, 1);
-                /* UNQUEUE SONG */
+                clientWorker.postMessage(['unqueue', index]);
             },
             joinSession: function(code) {
                 if(code.length == 5) {
-                    this.code = code;
-                    /* JOIN SESSION */
+                    clientWorker.postMessage(['connect', code]);
                 }
             },
             skipSong: function() {
-                /* SKIP SONG */
+                clientWorker.postMessage(['skip']);
             },
-            playSong: function() {
-                this.paused = false;
-                /* PLAY SONG */
+            resumeSong: function() {
+                clientWorker.postMessage(['resume', audio.position]);
             },
             pauseSong: function() {
-                this.paused = true;
-                /* PAUSE SONG */
+                clientWorker.postMessage(['pause']);
             },
             changeFilter: function(newFilter) {
                 if(newFilter == 'none') { 
@@ -184,6 +179,38 @@ window.onload = function() {
         }
     });
 
+    setInterval(() => {
+        if(audio !== undefined) {
+            vm.progress = audio.position / 1000;
+        }
+    }, 500);
+
+    preloadQueue = new createjs.LoadQueue(true);
+    preloadQueue.setMaxConnections(3);
+    preloadQueue.installPlugin(createjs.Sound);
+
+    preloadQueue.on('fileload', (e) => {
+        var id = e.item.id;
+        vm.songListing[id].preloaded = true;
+        if(playState !== undefined) {
+            var delta = Date.now() - playState.timeNow;
+            var skipTo = (playState.progress + (playState.paused ? 0 : delta));
+            audio = createjs.Sound.play(playState.id, {
+                offset: skipTo
+            });
+            audio.on('complete', (e) => {
+                clientWorker.postMessage(['end']);
+            });
+            audio.paused = playState.paused;
+            vm.nowPlaying = playState.id;
+            vm.paused = playState.paused;
+            playState = undefined;
+        } else {
+            Vue.set(vm.songListing, id, vm.songListing[id]);
+            clientWorker.postMessage(['loaded', id]);
+        }
+    }, this);
+
     clientWorker = new Worker('client.js');
 
     clientWorker.onmessage = (e) => {
@@ -192,7 +219,6 @@ window.onload = function() {
             case 'listing':
                 vm.songListing = e.data[1];
                 vm.thumbnails = e.data[2];
-                console.log(vm.songListing);
                 break;
 
             case 'newSession':
@@ -201,18 +227,11 @@ window.onload = function() {
 
             case 'updateQueue':
                 vm.queue = e.data[1];
-                break;
-
-            case 'load':
-                var songId = e.data[1];
-                var source = encodeURIComponent(songListing[songId].file);
-                howl = new Howl({
-                    src: [source],
-                    onload: () => {
-                        clientWorker.postMessage(['ready']);
-                    },
-                    onend: () => {
-                        clientWorker.postMessage(['end']);
+                vm.queue.forEach((id) => {
+                    if(vm.songListing[id].preloaded === undefined) {
+                        var source = encodeURIComponent(vm.songListing[id].file);
+                        preloadQueue.loadFile({id:id, src:source});
+                        vm.songListing[id].preloaded = false;
                     }
                 });
                 break;
@@ -220,7 +239,8 @@ window.onload = function() {
             case 'pause':
                 var time = e.data[1];
                 setTimeout(() => {
-                    // make button play
+                    vm.paused = true;
+                    audio.paused = true;
                 }, time);
                 break;
 
@@ -228,37 +248,25 @@ window.onload = function() {
                 var time = e.data[1];
                 var timestamp = e.data[2];
                 setTimeout(() => {
-                    // make button pause
-                    howl.play();
-                    howl.seek(timestamp);
-                }, time);
-                break;
-
-            case 'setTime':
-                var time = e.data[1];
-                var timestamp = e.data[2];
-                setTimeout(() => {
-                    howl.seek(timestamp);
-                    var songProgress = howl.seek();
-                    var songTime = formatTime(songProgress);
-                    // set displayed time
+                    vm.paused = false;
+                    audio.paused = false;
+                    audio.position = timestamp;
                 }, time);
                 break;
 
             case 'play':
                 var songId = e.data[1];
                 var time = e.data[2];
-                if(songId === undefined) {
-                    howl.unload();
-                    updateNowPlaying(undefined);
+                createjs.Sound.stop();
+                if(songId == null) {
+                    vm.nowPlaying = null;
                 } else {
                     setTimeout(() => {
-                        howl.play();
-                        updateNowPlaying(songId);
-                        setTimeout(() => {
-                            // get volume and set to howl
-                            howl.volume(volume);
-                        }, 25);
+                        audio = createjs.Sound.play(songId);
+                        audio.on('complete', (e) => {
+                            clientWorker.postMessage(['end']);
+                        });
+                        vm.nowPlaying = songId;
                     }, time);
                 }
                 break;
@@ -267,35 +275,21 @@ window.onload = function() {
                 var songId = e.data[1];
                 var songProgress = e.data[2];
                 var paused = e.data[3];
-                var timeNow = Date.now();
-                var source = encodeURIComponent(songListing[songId].file);
-                if(howl !== undefined) howl.stop();
-                howl = new Howl({
-                    src: [source],
-                    onload: () => {
-                        var delta = Date.now() - timeNow;
-                        var skipTo = (songProgress + (paused ? 0 : delta)) / 1000;
-                        howl.seek(skipTo);
-                        if(paused) {
-                            // set button to play
-                        } else {
-                            howl.play();
-                        }
-                        setTimeout(() => {
-                            // get volume and set to howl
-                            howl.volume(volume);
-                        }, 25);
-                        updateNowPlaying(songId);
-                    },
-                    onend: () => {
-                        clientWorker.postMessage(['end']);
-                    }
-                });
+                var source = encodeURIComponent(vm.songListing[songId].file);
+                preloadQueue.loadFile({id:songId, src:source});
+                vm.songListing[songId].preloaded = false;
+                createjs.Sound.stop();
+                playState = {
+                    id: songId,
+                    timeNow: Date.now(),
+                    paused: paused,
+                    progress: songProgress
+                };
                 break;
 
             case 'abort':
                 document.body.textContent = "Connection to the server has ended.";
-                if(howl !== undefined) howl.stop();
+                createjs.Sound.stop();
                 break;
         }
     };

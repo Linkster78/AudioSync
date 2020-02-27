@@ -14,15 +14,15 @@ var createSession = function(uuid) {
     var session = {
         code: sessionCode,
         members: [uuid],
-        ready: {},
+        preloaded: {},
         ping: {},
         queue: [],
         paused: false,
         timeReference: [0, 0],
         lastEnd: 0,
-        nowPlaying: undefined
+        nowPlaying: null
     };
-    session.ready[uuid] = false;
+    session.preloaded[uuid] = [];
 
     sessions.push(session);
     return session;
@@ -30,7 +30,7 @@ var createSession = function(uuid) {
 
 var disconnectMember = function(uuid) {
     var session = getSessionByUUID(uuid);
-    if(!(session === undefined)) {
+    if(session != null) {
         session.members.splice(session.members.indexOf(uuid), 1);
         if(session.members.length == 0) {
             sessions.splice(sessions.indexOf(session), 1);
