@@ -83,6 +83,9 @@
                     v-bind:code="code"
                     v-on:refresh="joinSession">
                 </session-indicator>
+                <suggestion-box class="suggestion-box"
+                    v-on:submit="submitSuggestion">
+                </suggestion-box>
                 <volume-slider class="volume-slider"
                     v-on:change="changeVolume">
                 </volume-slider>

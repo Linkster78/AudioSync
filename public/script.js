@@ -9,6 +9,23 @@ function formatTime(time) {
 window.onload = function() {
     var clientWorker, preloadQueue, audio, playState;
 
+    Vue.component('song-filter', {
+        template: `<div>
+                        <h2>Filter By: </h2>
+                        <select v-model="filter" v-on:change="$emit('change', filter)">
+                            <option value="none">None</option>
+                            <option value="artist">Artist</option>
+                            <option value="album">Album</option>
+                            <option value="year">Year</option>
+                        </select>
+                    </div>`,
+        data: function() {
+            return {
+                filter: 'none'
+            };
+        }
+    });
+
     Vue.component('song-option', {
         props: ['title', 'id'],
         template: `<li v-on:click="$emit('queue', id)"><span>[+]</span> {{title}}</li>`
@@ -106,19 +123,20 @@ window.onload = function() {
         }
     });
 
-    Vue.component('song-filter', {
+    Vue.component('suggestion-box', {
         template: `<div>
-                        <h2>Filter By: </h2>
-                        <select v-model="filter" v-on:change="$emit('change', filter)">
-                            <option value="none">None</option>
-                            <option value="artist">Artist</option>
-                            <option value="album">Album</option>
-                            <option value="year">Year</option>
-                        </select>
+                        <h2>Suggestion Box</h2>
+                        <input placeholder="Suggestion" v-model="suggestion"><button v-on:click="submit">Submit</button>
                     </div>`,
+        methods: {
+            submit: function() {
+                this.$emit('submit', this.suggestion);
+                this.suggestion = "";
+            }
+        },
         data: function() {
             return {
-                filter: 'none'
+                suggestion: ''
             };
         }
     });
@@ -222,6 +240,11 @@ window.onload = function() {
             changeVolume: function(volume) {
                 this.volume = volume;
                 if(audio !== undefined) audio.volume = this.volume;
+            },
+            submitSuggestion: function(suggestion) {
+                if(suggestion.length >= 5) {
+                    clientWorker.postMessage(['suggest', suggestion]);
+                }
             }
         }
     });

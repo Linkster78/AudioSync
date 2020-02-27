@@ -136,5 +136,13 @@ onmessage = (e) => {
                 id: id
             }));
             break;
+        
+        case 'suggest':
+            var suggestion = e.data[1];
+            webSocket.send(JSON.stringify({
+                packet: 'suggest',
+                suggestion: suggestion
+            }));
+            break;
     }
 };

@@ -5,4 +5,4 @@ This is a project of mine designed to play audio files to multiple users connect
 ![Web Interface](https://i.imgur.com/wH3cmU6.png)
 
 ## TODO
-* Song Request System
+* Session Browser

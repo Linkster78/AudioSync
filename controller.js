@@ -1,5 +1,6 @@
 const audio = require('./audio');
 const sessions = require('./session');
+const suggestions = require('./suggestions');
 const { uuid } = require('uuidv4');
 
 Array.prototype.max = function() {
@@ -240,6 +241,12 @@ var configureWebSocket = function(wss) {
                         }
                     }
                     break;
+
+                case 'suggest':
+                    var suggestion = json['suggestion'];
+                    suggestions.logSuggestion(suggestion);
+                    console.log(`Received Suggestion: "${suggestion}".`);
+                    break;
             }
         });
 
@@ -251,5 +258,5 @@ var configureWebSocket = function(wss) {
 }
 
 module.exports = {
-    configureWebSocket: configureWebSocket
+    configureWebSocket
 };

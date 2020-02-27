@@ -45,7 +45,7 @@ var loadSongs = function(musicFolder) {
 }
 
 module.exports = {
-    loadSongs: loadSongs,
-    songStore: songStore,
-    thumbnailStore: thumbnailStore
+    loadSongs,
+    songStore,
+    thumbnailStore
 };
