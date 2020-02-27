@@ -65,7 +65,7 @@ window.onload = function() {
                             </p>
                             <p class="right">{{songLength}}</p>
                         </div>
-                        <input style="pointer-events:none" type="range" min="0" step="0.1" v-bind:value="progress" v-bind:max="length || 0">
+                        <input style="pointer-events:none" type="range" min="0" v-bind:value="progress" v-bind:max="length || 0">
                     </div>`,
         computed: {
             songProgress: function() {
@@ -109,7 +109,7 @@ window.onload = function() {
     Vue.component('song-filter', {
         template: `<div>
                         <h2>Filter By: </h2>
-                        <select v-model="filter" v-on:change="$emit('refresh', filter)">
+                        <select v-model="filter" v-on:change="$emit('change', filter)">
                             <option value="none">None</option>
                             <option value="artist">Artist</option>
                             <option value="album">Album</option>
@@ -123,6 +123,48 @@ window.onload = function() {
         }
     });
 
+    Vue.component('volume-slider', {
+        template: `<p v-on:mousedown="dragStart" v-on:mouseup="dragEnd" v-on:mouseleave="dragEnd" v-on:mousemove="drag">\< Volume {{Math.floor(volume * 100)}}% \></p>`,
+        methods: {
+            dragStart: function(e) {
+                this.dragging = true;
+                this.initialVolume = this.volume;
+                var rect = e.target.getBoundingClientRect();
+                var mouseX = e.clientX;
+                var elementX = rect.x;
+                var elementWidth = rect.width;
+                this.initialX = (mouseX - elementX) / elementWidth;
+            },
+            dragEnd: function(e) {
+                this.dragging = false;
+            },
+            drag: function(e) {
+                if(this.dragging) {
+                    var rect = e.target.getBoundingClientRect();
+                    var mouseX = e.clientX;
+                    var elementX = rect.x;
+                    var elementWidth = rect.width;
+                    this.volume = this.initialVolume + (mouseX - elementX) / elementWidth - this.initialX;
+                }
+            }
+        },
+        data: function() {
+            return {
+                volume: 1,
+                dragging: false,
+                initialVolume: 0,
+                initialX: 0
+            }
+        },
+        watch: {
+            volume: function(vol) {
+                if(vol < 0) this.volume = 0;
+                if(vol > 1) this.volume = 1;
+                this.$emit('change', this.volume);
+            }
+        }
+    });
+
     var vm = new Vue({
         el: '#app',
         data: {
@@ -133,6 +175,7 @@ window.onload = function() {
             nowPlaying: null,
             paused: false,
             progress: 0,
+            volume: 1,
             code: null
         },
         computed: {
@@ -175,6 +218,10 @@ window.onload = function() {
                         songs: this.songListing.filter((song) => song[newFilter] == value)
                     };
                 }).sort();
+            },
+            changeVolume: function(volume) {
+                this.volume = volume;
+                if(audio !== undefined) audio.volume = this.volume;
             }
         }
     });
@@ -196,7 +243,8 @@ window.onload = function() {
             var delta = Date.now() - playState.timeNow;
             var skipTo = (playState.progress + (playState.paused ? 0 : delta));
             audio = createjs.Sound.play(playState.id, {
-                offset: skipTo
+                offset: skipTo,
+                volume: vm.volume
             });
             audio.on('complete', (e) => {
                 clientWorker.postMessage(['end']);
@@ -262,7 +310,9 @@ window.onload = function() {
                     vm.nowPlaying = null;
                 } else {
                     setTimeout(() => {
-                        audio = createjs.Sound.play(songId);
+                        audio = createjs.Sound.play(songId, {
+                            volume: vm.volume
+                        });
                         audio.on('complete', (e) => {
                             clientWorker.postMessage(['end']);
                         });

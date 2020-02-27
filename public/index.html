@@ -16,7 +16,7 @@
             <section class="song-list">
                 <h1>Available Songs</h1>
                 <song-filter class="song-filter"
-                    v-on:refresh="changeFilter">
+                    v-on:change="changeFilter">
                 </song-filter>
                 <div class="list">
                     <song-option class="song-option"
@@ -83,6 +83,9 @@
                     v-bind:code="code"
                     v-on:refresh="joinSession">
                 </session-indicator>
+                <volume-slider class="volume-slider"
+                    v-on:change="changeVolume">
+                </volume-slider>
             </section>
         </main>
     </body>
