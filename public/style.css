@@ -175,12 +175,19 @@ select {
     flex: auto 0 0;
 }
 
-.song-metadata > img {
-    flex: 2 0 0;
+.img-wrapper {
+    order: 0;
+    flex: 1 0 0;
 }
 
-.song-metadata > div {
-    flex: 7 0 0;
+.img-wrapper > img {
+    width: 100%;
+    height: auto;
+}
+
+.metadata {
+    order: 1;
+    flex: 2 0 0;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;

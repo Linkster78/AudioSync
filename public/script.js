@@ -38,8 +38,8 @@ window.onload = function() {
     Vue.component('song-metadata', {
         props: ['thumbnail', 'title', 'artist', 'album', 'year', 'length'],
         template: `<div>
-                        <img v-bind:src="thumbnail || 'noimage.png'">
-                        <div>
+                        <div class="img-wrapper"><img v-bind:src="thumbnail || 'noimage.png'"></div>
+                        <div class="metadata">
                             <h2><span>Title:</span> {{title || 'NA'}}</h2>
                             <h2><span>Artist:</span> {{artist || 'NA'}}</h2>
                             <h2><span>Album:</span> {{album || 'NA'}}</h2>

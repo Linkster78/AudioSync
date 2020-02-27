@@ -140,7 +140,7 @@ var configureWebSocket = function(wss) {
                                 }));
                             });
                             session.paused = false;
-                            session.timeReference = [Date.now() + delay, Math.floor(time * 1000)];
+                            session.timeReference = [Date.now() + delay, time];
                         }
                     }
                     break;
