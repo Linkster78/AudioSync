@@ -142,7 +142,7 @@ window.onload = function() {
     });
 
     Vue.component('volume-slider', {
-        template: `<p v-on:mousedown="dragStart" v-on:mouseup="dragEnd" v-on:mouseleave="dragEnd" v-on:mousemove="drag">\< Volume {{Math.floor(volume * 100)}}% \></p>`,
+        template: `<p v-on:mousedown="dragStart">\< Volume {{Math.floor(volume * 100)}}% \></p>`,
         methods: {
             dragStart: function(e) {
                 this.dragging = true;
@@ -152,18 +152,6 @@ window.onload = function() {
                 var elementX = rect.x;
                 var elementWidth = rect.width;
                 this.initialX = (mouseX - elementX) / elementWidth;
-            },
-            dragEnd: function(e) {
-                this.dragging = false;
-            },
-            drag: function(e) {
-                if(this.dragging) {
-                    var rect = e.target.getBoundingClientRect();
-                    var mouseX = e.clientX;
-                    var elementX = rect.x;
-                    var elementWidth = rect.width;
-                    this.volume = this.initialVolume + (mouseX - elementX) / elementWidth - this.initialX;
-                }
             }
         },
         data: function() {
@@ -245,6 +233,19 @@ window.onload = function() {
                 if(suggestion.length >= 5) {
                     clientWorker.postMessage(['suggest', suggestion]);
                 }
+            },
+            drag: function(e) {
+                var dt = this.$refs["volumeSlider"];
+                if(dt._data.dragging) {
+                    var rect = dt.$el.getBoundingClientRect();
+                    var mouseX = e.clientX;
+                    var elementX = rect.x;
+                    var elementWidth = rect.width;
+                    dt._data.volume = dt._data.initialVolume + (mouseX - elementX) / elementWidth - dt._data.initialX;
+                }
+            },
+            dragStop: function() {
+                this.$refs["volumeSlider"]._data.dragging = false;
             }
         }
     });
@@ -345,6 +346,7 @@ window.onload = function() {
                         audio.on('complete', (e) => {
                             clientWorker.postMessage(['end']);
                         });
+                        vm.paused = false;
                         vm.nowPlaying = songId;
                     }, time);
                 }
@@ -357,6 +359,7 @@ window.onload = function() {
                 var source = encodeURIComponent(vm.songListing[songId].file);
                 preloadQueue.loadFile({id:songId, src:source});
                 vm.songListing[songId].preloaded = false;
+                clientWorker.postMessage(['thumbnailRequest', vm.songListing[id].thumbnail]);
                 createjs.Sound.stop();
                 playState = {
                     id: songId,

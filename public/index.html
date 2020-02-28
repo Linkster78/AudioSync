@@ -12,7 +12,10 @@
     </head>
 
     <body>
-        <main id="app" class="view">
+        <main id="app" class="view" 
+            v-on:mouseup="dragStop"
+            v-on:mouseleave="dragStop"
+            v-on:mousemove="drag">
             <section class="song-list">
                 <h1>Available Songs</h1>
                 <song-filter class="song-filter"
@@ -87,6 +90,7 @@
                     v-on:submit="submitSuggestion">
                 </suggestion-box>
                 <volume-slider class="volume-slider"
+                    ref="volumeSlider"
                     v-on:change="changeVolume">
                 </volume-slider>
             </section>
