@@ -359,7 +359,7 @@ window.onload = function() {
                 var source = encodeURIComponent(vm.songListing[songId].file);
                 preloadQueue.loadFile({id:songId, src:source});
                 vm.songListing[songId].preloaded = false;
-                clientWorker.postMessage(['thumbnailRequest', vm.songListing[id].thumbnail]);
+                clientWorker.postMessage(['thumbnailRequest', vm.songListing[songId].thumbnail]);
                 createjs.Sound.stop();
                 playState = {
                     id: songId,
