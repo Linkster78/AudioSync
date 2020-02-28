@@ -6,3 +6,4 @@ This is a project of mine designed to play audio files to multiple users connect
 
 ## TODO
 * Session Browser
+* Song Popup Description
