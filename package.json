@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "crypto": "^1.0.1",
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "music-metadata": "^6.3.4",
     "util": "^0.12.1",
     "uuidv4": "^6.0.2",
